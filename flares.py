@@ -13,7 +13,7 @@ from altaipony.altai import aflare
 from altaipony.utils import generate_random_power_law_distribution
 
 
-def flare_contrast(t, n_spots, emin, emax, alpha, beta, n_inclinations):
+def flare_contrast(t, n_spots, emin, emax, alpha, beta, n_inclinations, **kwargs):
     """Creates a set of flaring light curves.
     
     Parameters:
@@ -38,6 +38,9 @@ def flare_contrast(t, n_spots, emin, emax, alpha, beta, n_inclinations):
         FFD power law offset, in ED space
     n_inclinations : int
         i.e., number of stars
+    kwargs : dict
+        keyword arguments to pass to 
+        create_flare_light_curve
     
     Return:
     --------
@@ -64,7 +67,8 @@ def flare_contrast(t, n_spots, emin, emax, alpha, beta, n_inclinations):
         # create a flare light curve for each star
         # with the same flaring region parameters
         return np.apply_along_axis(create_flare_light_curve, 0,
-                                   t3d, emin, emax, alpha, beta)
+                                   t3d, emin, emax, alpha, beta,
+                                   **kwargs)
     
     # if floats are passed, make list
     listify = lambda a: [a] if (isinstance(a, float) | isinstance(a, int)) else a

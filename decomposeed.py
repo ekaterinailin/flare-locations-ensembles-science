@@ -77,8 +77,8 @@ def decompose_ed_from_UCDs_and_Davenport(ed):
         
     Return:
     -------
-    a, fwhm of flare
+    a, fwhm of flare in rel. units and days
     """
     a = a_from_ed(ed)
     fwhm = fwhm_from_ed_a(ed/a)
-    return a, fwhm
+    return a, fwhm / 60. / 60. / 24.
