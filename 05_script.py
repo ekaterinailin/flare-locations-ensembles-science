@@ -88,7 +88,7 @@ if __name__ == "__main__":
     plt.xlabel("rel. amplitude")
     plt.ylabel("ED [s]");
     plt.legend()
-    plt.savefig("plots/{today}_ED_over_a_in_TESS_UCD_flares.png", dpi=300)
+    plt.savefig(f"plots/{today}_ED_over_a_in_TESS_UCD_flares.png", dpi=300)
     # -------------------------------------------------------------
     
     # --------------------------------------------------------------

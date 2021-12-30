@@ -6,7 +6,6 @@ Ekaterina Ilin
 MIT License (2022)
 """
 
-
 import numpy as np
 import json
 
