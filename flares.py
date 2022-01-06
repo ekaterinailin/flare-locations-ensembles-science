@@ -167,6 +167,7 @@ def create_flare_light_curve(time, emin, emax, alpha, beta,
     # Add 1 as baseline, because the amplitude is given in relative units
     lc = (np.array([wrapped_aflare(time, tstart[i], fwhm[i], a[i])[1] for i, ed in enumerate(EDs)]).sum(axis=0) + 1.)
     
+
     return lc
 
 
