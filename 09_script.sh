@@ -1,0 +1,10 @@
+python 09_generate_training_data.py 10000
+python 09_generate_training_data.py 10000
+python 09_generate_training_data.py 10000
+python 09_generate_training_data.py 10000
+python 09_generate_training_data.py 10000
+python 09_generate_training_data.py 10000
+python 09_generate_training_data.py 10000
+python 09_generate_training_data.py 10000
+python 09_generate_training_data.py 10000
+python 09_generate_training_data.py 10000
