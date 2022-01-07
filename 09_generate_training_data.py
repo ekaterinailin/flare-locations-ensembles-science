@@ -41,6 +41,7 @@ if __name__ == "__main__":
     n_inclinations = 1
 
     for i in range(int(sys.argv[1])):
+        
 
         # 1-3 spots
         n_spots = np.random.randint(1,4)
@@ -113,6 +114,8 @@ if __name__ == "__main__":
         flares["lons_1"] = lonsa[0]
         flares["lons_2"] = lonsa[1]
         flares["lons_3"] = lonsa[2]
+        
+        flares["starid"] = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
 
 
         # if no flares found, skip
