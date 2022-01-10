@@ -81,3 +81,23 @@ def decompose_ed_from_UCDs_and_Davenport(ed):
     a = a_from_ed(ed)
     fwhm = fwhm_from_ed_a(ed/a)
     return a, fwhm / 60. / 60. / 24.
+
+
+def decompose_ed_randomly_and_using_Davenport(ed):
+    """Take random amplitude between 1e-3 and 100, then
+    Davenport(2014) formulas (1) and (4) integrated
+    to infer FWHM.
+    
+    Parameters:
+    ------------
+    ed : float or array
+        ED of flare
+        
+    Return:
+    -------
+    a, fwhm of flare in rel. units and days
+    """
+    ed_ = [ed] if isinstance(ed, float) else ed
+    a = np.power(10, np.random.rand(len(ed_)) * 5. - 3.)
+    fwhm = fwhm_from_ed_a(ed/a)
+    return a, fwhm / 60. / 60. / 24.
