@@ -99,5 +99,6 @@ def decompose_ed_randomly_and_using_Davenport(ed):
     """
     ed_ = [ed] if isinstance(ed, float) else ed
     a = np.power(10, np.random.rand(len(ed_)) * 5. - 3.)
+    a[np.where(np.isnan(ed_)[0])] = np.nan
     fwhm = fwhm_from_ed_a(ed/a)
     return a, fwhm / 60. / 60. / 24.
