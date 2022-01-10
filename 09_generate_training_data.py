@@ -17,7 +17,7 @@ from altaipony.flarelc import FlareLightCurve
 from flares import flare_contrast
 from decomposeed import decompose_ed_from_UCDs_and_Davenport
 
-from datetime import date
+from datetime import date, datetime
 
 import sys
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     t = np.arange(0, 2 * np.pi, 2 * np.pi/2000)
     phases = t * u.rad
 
-    emin, emax = 1e-2, 1e8
+    emin, emax = 1e-1, 1e6
 
     flc = FlareLightCurve(time=t)
     err = np.full_like(t, 5e-12)
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         flares["lons_2"] = lonsa[1]
         flares["lons_3"] = lonsa[2]
         
-        flares["starid"] = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
+        flares["starid"] = datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
 
 
         # if no flares found, skip
@@ -123,5 +123,5 @@ if __name__ == "__main__":
             continue
         # write results to file 
         else:
-            with open(f"results/{today}_flares_alpha_beta_rand.csv", "a") as file:
+            with open(f"results/{today}_flares_alpha_beta_rand_validate.csv", "a") as file:
                 flares.to_csv(file, index=False, header=False)
