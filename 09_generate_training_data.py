@@ -15,7 +15,7 @@ from fleck import Star
 from altaipony.flarelc import FlareLightCurve
 
 from flares import flare_contrast
-from decomposeed import decompose_ed_from_UCDs_and_Davenport
+from decomposeed import decompose_ed_from_UCDs_and_Davenport, decompose_ed_randomly_and_using_Davenport
 
 from datetime import date, datetime
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
         flares = flare_contrast(t, n_spots, [emin] * n_spots, [emax] * n_spots, alpha, beta, 
                                 n_inclinations,
-                                decompose_ed=decompose_ed_from_UCDs_and_Davenport)
+                                decompose_ed=decompose_ed_randomly_and_using_Davenport)
 
 
         # make flaring spots

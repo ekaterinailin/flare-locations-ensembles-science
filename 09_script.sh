@@ -1,10 +1,17 @@
-python 09_generate_training_data.py 1000
-python 09_generate_training_data.py 1000
-python 09_generate_training_data.py 1000
-python 09_generate_training_data.py 1000
-python 09_generate_training_data.py 1000
-python 09_generate_training_data.py 1000
-python 09_generate_training_data.py 1000
-python 09_generate_training_data.py 1000
-python 09_generate_training_data.py 1000
-python 09_generate_training_data.py 1000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+python 09_generate_training_data.py 2000
+
