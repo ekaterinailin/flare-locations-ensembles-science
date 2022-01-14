@@ -24,11 +24,44 @@ from datetime import date, datetime
 import sys
 
 
-def generate_lc(u_ld, t, phases, emin, emax, flc, err,
-                itmed, spot_radius, n_inclinations, alphamin,
-                alphamax, betamin, betamax, n_spots_min,
-                n_spots_max, midlat, latwidth, errval, path):
-    
+def generate_lc(u_ld, t, emin, emax, errval, flc, spot_radius, n_inclinations, 
+                alphamin, alphamax, betamin, betamax, n_spots_min,
+                n_spots_max, midlat, latwidth, path):
+    """Generate a light curve of star with parameters drawn from a
+    defined distribution.
+
+    Parameters:
+    ------------
+    u_ld : 2-tuple of floats
+        quadratic limb darkening coefficients
+    t : n-array
+        array of observing times of size n
+    emin, emax : float
+        minimum and maximum flare energy allowed to be generated
+        unit is [s], measured in equivalent duration space
+    errval : float
+        std of quiescent light curve, used to add Gaussian noise to
+        the light curve
+    flc : FlareLightCurve
+        light curve with t as time series, detrended flux_err=errval, 
+        and it_med=1
+    spot_radius : float < 1.
+        radius of active region in units of stellar radius
+    n_inclinations : int>=1
+        number of stars to generate light curves for at random inclinations
+    alphamin, alphamax : floats > 0, alphamax > alphamin
+        power law index range of flare frequency distribution
+    betamin, betamax : ints > 1, betamax > betamin
+        power law offset range of flare frequency distribution, number of
+        flares in light curve
+    n_spots_min, n_spots_max : ints >=1, n_spots_max > n_spots_min
+        range of number of spots to be generated in active latitude strip
+    midlat, latwidth : float, latwidth / 2. < midlat < 90 - latwidth / 2.
+        mid latitude and width of active latitude strip
+    path : str
+        path to file
+ 
+    """
     # number of spots, note that randint is [low, high)!
     n_spots = np.random.randint(n_spots_min, n_spots_max + 1)
     
@@ -70,8 +103,6 @@ def generate_lc(u_ld, t, phases, emin, emax, flc, err,
     # define light curve
     flc.flux = lc
     flc.detrended_flux = lc + np.random.normal(0, errval, len(lc))
-    flc.detrended_flux_err = err
-    flc.it_med = itmed
     
     # search for flares
     flares = flc.find_flares().flares
@@ -119,7 +150,6 @@ if __name__ == "__main__":
 
     # time series in rad
     t = np.arange(0, 2 * np.pi, 2 * np.pi / 2000)
-    phases = t * u.rad
 
     # min and max energy of flares in ED space
     emin, emax = 1e-1, 1e6
@@ -140,9 +170,11 @@ if __name__ == "__main__":
     # is correct per definition, even somewhat more correct
     # than doable in practice
     err = np.full_like(t, errval)
+    flc.detrended_flux_err = err
 
     # the quiescent median is one 
     itmed = np.ones_like(t)
+    flc.it_med = itmed
 
     # pick a small but not too small flaring region size
     spot_radius = 0.01
@@ -156,24 +188,38 @@ if __name__ == "__main__":
     # total number of light curves given from command line
     n_lcs = int(sys.argv[1])
 
-    inputs = (u_ld, t, phases, emin, emax, flc, err,
-              itmed, spot_radius, 1, alphamin, # n_inclinations is set to 1 to get each light curve separately
-              alphamax, betamin, betamax, n_spots_min,
-              n_spots_max, midlat, latwidth, errval)
+    # generate only one lc per iteration to make code less complicated
+    n_inclinations = 1
+
+    # all inputs together, except for path
+    inputs = (u_ld, t, emin, emax, errval, flc, spot_radius, n_inclinations, 
+              alphamin, alphamax, betamin, betamax, n_spots_min,
+              n_spots_max, midlat, latwidth)
     
+    # string for log file
     string = (f"{u_ld[0]},{u_ld[1]},{emin},{emax},{alphamin},"
               f"{alphamax},{betamin},{betamax},{len(t)},"
-              f"{errval},{spot_radius},{midlat},{latwidth}")
+              f"{errval},{spot_radius},{midlat},{latwidth},"
+              f"{n_spots_min},{n_spots_max}")
     
+    # -------------------------- TRAINING SET ----------------------------------
     path = f"results/{today}_flares_train.csv"
+
+    # replace this with bash script constructor
     for i in range(n_lcs):
         generate_lc(*inputs, path)
 
     with open("results/overview_synthetic_data.csv", "a") as f:
         line = (f"{today},train,{path},{string},{n_lcs}\n")
         f.write(line)
+    # -------------------------- TRAINING SET END ------------------------------
 
+
+    # -------------------------- VALIDATION SET --------------------------------
+    # validation set shall be 10% of the size of the training set
     factor_smaller = 10
+
+    # replace this with bash script constructor
     path = f"results/{today}_flares_validate.csv"
     for i in range(n_lcs // factor_smaller):
         generate_lc(*inputs, path)
@@ -181,3 +227,6 @@ if __name__ == "__main__":
     with open("results/overview_synthetic_data.csv", "a") as f:
         line = (f"{today},validate,{path},{string},{n_lcs // factor_smaller}\n")
         f.write(line)
+
+    # -------------------------- VALIDATION SET END ----------------------------
+
