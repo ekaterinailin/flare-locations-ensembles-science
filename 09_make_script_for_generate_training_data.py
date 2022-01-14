@@ -11,7 +11,9 @@ from datetime import date, datetime
 
 import sys
 
-from flares.__init__ import LOG_DATA_OVERVIEW_PATH
+from flares.__init__ import (LOG_DATA_OVERVIEW_PATH,
+                             SCIPT_NAME_GENERATE_DATA,
+                            )
 
 if __name__ == "__main__":
   
@@ -70,7 +72,7 @@ if __name__ == "__main__":
     n_lcs_per_batch = n_lcs // batches    
     command =  f"python 09_generate_data.py {today} {n_lcs_per_batch} {path} train\n"    
 
-    with open("09_script_training_data.sh", "w") as f:
+    with open(SCIPT_NAME_GENERATE_DATA, "w") as f:
         for i in range(batches):
             f.write(command)   
 
@@ -96,7 +98,7 @@ if __name__ == "__main__":
  
     command =  f"python 09_generate_data.py {today} {n_lcs_per_batch} {path} validate\n"    
 
-    with open("09_script_training_data.sh", "a") as f:
+    with open(SCIPT_NAME_GENERATE_DATA, "a") as f:
         for i in range(batches):
             f.write(command)  
 
