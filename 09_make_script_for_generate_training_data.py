@@ -15,6 +15,9 @@ from flares.__init__ import (LOG_DATA_OVERVIEW_PATH,
                              SCIPT_NAME_GENERATE_DATA,
                             )
 
+DECOMPFUNCS = ["decompose_ed_randomly_and_using_Davenport",
+	           "decompose_ed_from_UCDs_and_Davenport")
+
 if __name__ == "__main__":
   
     today = datetime.now().strftime("%d_%m_%Y_%H_%M")
@@ -51,12 +54,15 @@ if __name__ == "__main__":
 
     # choose random mid latitude or fix it
     midlat = "random"
+
+    # choose decomposition function
+    decomposeed = DECOMPFUNCS[1]
     
     # inputs string for log file
     inputs = (f"{u_ld[0]},{u_ld[1]},{emin},{emax},{alphamin},"
               f"{alphamax},{betamin},{betamax},{size_lc},"
               f"{errval},{spot_radius},{midlat},{latwidth},"
-              f"{n_spots_min},{n_spots_max}")
+              f"{n_spots_min},{n_spots_max},{decomposeed}")
     
     # how many batches
     batches = 20

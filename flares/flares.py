@@ -7,8 +7,11 @@ MIT License (2022)
 """
 
 import warnings
+from datetime import datetime
 
 import numpy as np
+
+import astropy.units as u
 
 from altaipony.altai import aflare
 from altaipony.utils import generate_random_power_law_distribution
@@ -17,9 +20,16 @@ from .decomposeed import (decompose_ed_from_UCDs_and_Davenport,
                          decompose_ed_randomly_and_using_Davenport,
                          )
 
-def generate_lcs(u_ld, t, emin, emax, errval, flc, spot_radius, n_inclinations, 
+DECOMPOSEED_DICT = {"decompose_ed_from_UCDs_and_Davenport" : 
+                    decompose_ed_from_UCDs_and_Davenport,
+                    "decompose_ed_randomly_and_using_Davenport" :
+                    decompose_ed_randomly_and_using_Davenport}
+
+from fleck import generate_spots, Star
+
+def generate_lcs(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations, 
                 alphamin, alphamax, betamin, betamax, n_spots_min,
-                n_spots_max, midlat, latwidth, path):
+                n_spots_max, midlat, latwidth, decomposeed, path):
     """Generate a light curve of star with parameters drawn from a
     defined distribution.
 
@@ -27,17 +37,15 @@ def generate_lcs(u_ld, t, emin, emax, errval, flc, spot_radius, n_inclinations,
     ------------
     u_ld : 2-tuple of floats
         quadratic limb darkening coefficients
-    t : n-array
-        array of observing times of size n
+    flc : FlareLightCurve
+        light curve with t as time series, detrended flux_err=errval, 
+        and it_med=1
     emin, emax : float
         minimum and maximum flare energy allowed to be generated
         unit is [s], measured in equivalent duration space
     errval : float
         std of quiescent light curve, used to add Gaussian noise to
         the light curve
-    flc : FlareLightCurve
-        light curve with t as time series, detrended flux_err=errval, 
-        and it_med=1
     spot_radius : float < 1.
         radius of active region in units of stellar radius
     n_inclinations : int>=1
@@ -52,6 +60,8 @@ def generate_lcs(u_ld, t, emin, emax, errval, flc, spot_radius, n_inclinations,
     midlat, latwidth : float and float or "random", 
 	if random: latwidth / 2. < midlat < 90 - latwidth / 2.
         mid latitude and width of active latitude strip
+    decomposeed : str
+        function string for ED decomposition
     path : str
         path to file
  
@@ -66,9 +76,9 @@ def generate_lcs(u_ld, t, emin, emax, errval, flc, spot_radius, n_inclinations,
     beta = np.random.randint(betamin, betamax + 1, size=n_spots)
     
     # make flare light curves
-    flares = flare_contrast(t, n_spots, [emin] * n_spots, [emax] * n_spots, alpha, beta, 
+    flares = flare_contrast(flc.time.value, n_spots, [emin] * n_spots, [emax] * n_spots, alpha, beta, 
                             n_inclinations,
-                            decompose_ed=decompose_ed_randomly_and_using_Davenport)
+                            decompose_ed=DECOMPOSEED_DICT[decomposeed])
     
     # pick a random mid-latitude that does go below 0. or above 90.
     if midlat == "random":    
@@ -76,21 +86,21 @@ def generate_lcs(u_ld, t, emin, emax, errval, flc, spot_radius, n_inclinations,
 
     # make flaring spots
     lons, lats, radii, inc_stellar = generate_spots(midlat - latwidth / 2. , midlat + latwidth / 2. ,
-                                                    [spot_radius] * n_spots, n_spots,
+                                                    spot_radius, n_spots,
                                                     n_inclinations=n_inclinations)
     # make star!
-    star = Star(spot_contrast=flares, phases=t * u.rad, u_ld=u_ld)
+    star = Star(spot_contrast=flares, phases=flc.time.value * u.rad, u_ld=u_ld)
     
-    # make size 3 array
-    betaa = np.array([np.nan] * 3)
+    # make array in the number of spots size
+    betaa = np.array([np.nan] * n_spots_max)
     betaa[:len(beta)] = beta
     
-    # make size 3 array
-    alphaa = np.array([np.nan] * 3)
+    # make array in the number of spots size
+    alphaa = np.array([np.nan] * n_spots_max)
     alphaa[:len(alpha)] = alpha
     
-    # make size 3 array
-    lonsa = np.array([np.nan] * 3)
+    # make array in the number of spots size
+    lonsa = np.array([np.nan] * n_spots_max)
     lonsa[:len(lons)] = lons[:,0].value
     
     # get light curve
@@ -134,6 +144,7 @@ def generate_lcs(u_ld, t, emin, emax, errval, flc, spot_radius, n_inclinations,
         with open(path, "a") as file:
             flares.to_csv(file, index=False, header=False)
 
+    return flares
 
 def flare_contrast(t, n_spots, emin, emax, alpha, beta, n_inclinations, **kwargs):
     """Creates a set of flaring light curves.

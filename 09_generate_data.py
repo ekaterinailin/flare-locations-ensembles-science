@@ -4,6 +4,7 @@ import pandas as pd
 from altaipony.flarelc import FlareLightCurve
 
 from flares.flares import generate_lcs
+from flares.decomposeed import 
 
 import sys
 
@@ -66,10 +67,10 @@ if __name__ == "__main__":
 
     # ---------------------- RUN LOOP WITH INPUTS ------------------------------
 
-    inputs = ((u_ld_0, u_ld_1), t, row.emin, row.emax, row.errval, flc,
+    inputs = ((u_ld_0, u_ld_1), flc, row.emin, row.emax, row.errval,
               row.spot_radius, n_inclinations,row.alphamin, row.alphamax,
               row.betamin, row.betamax, row.n_spots_min, row.n_spots_max, 
-              row.midlat, row.latwidth, outpath)
+              row.midlat, row.latwidth, row.decomposeed, outpath)
 
     for i in range(n_lcs):
         generate_lc(*inputs)
