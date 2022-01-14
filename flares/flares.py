@@ -27,9 +27,11 @@ DECOMPOSEED_DICT = {"decompose_ed_from_UCDs_and_Davenport" :
 
 from fleck import generate_spots, Star
 
-def generate_lcs(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations, 
-                alphamin, alphamax, betamin, betamax, n_spots_min,
-                n_spots_max, midlat, latwidth, decomposeed, path):
+import matplotlib.pyplot as plt
+
+def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations, 
+               alphamin, alphamax, betamin, betamax, n_spots_min,
+               n_spots_max, midlat, latwidth, decomposeed, path):
     """Generate a light curve of star with parameters drawn from a
     defined distribution.
 
@@ -103,6 +105,11 @@ def generate_lcs(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     lonsa = np.array([np.nan] * n_spots_max)
     lonsa[:len(lons)] = lons[:,0].value
     
+    # make array in the number of spots size
+    latsa = np.array([np.nan] * n_spots_max)
+    latsa[:len(lats)] = lats[:,0].value
+    
+
     # get light curve
     lcs = star.light_curve(lons, lats, radii, inc_stellar)
     lc = lcs[:,0]
@@ -124,18 +131,12 @@ def generate_lcs(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     # save input parameters
     flares["n_spots"] = n_spots
     
-    flares["beta_1"] = betaa[0]
-    flares["beta_2"] = betaa[1]
-    flares["beta_3"] = betaa[2]
-    
-    flares["alpha_1"] = alphaa[0]
-    flares["alphaa_2"] = alphaa[1]
-    flares["alpha_3"] = alphaa[2]
-    
-    flares["lons_1"] = lonsa[0]
-    flares["lons_2"] = lonsa[1]
-    flares["lons_3"] = lonsa[2]
-    
+    for i in range(n_spots_max):
+        flares[f"beta_{i+1}"] = betaa[i]
+        flares[f"alpha_{i+1}"] = alphaa[i]
+        flares[f"lon_deg_{i+1}"] = lonsa[i]
+        flares[f"lat_deg_{i+1}"] = latsa[i]    
+
     # add identifier for each LC
     flares["starid"] = datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
     

@@ -3,7 +3,7 @@ import pandas as pd
 
 from altaipony.flarelc import FlareLightCurve
 
-from flares.flares import generate_lcs
+from flares.flares import get_flares
 from flares.decomposeed import 
 
 import sys
@@ -73,6 +73,6 @@ if __name__ == "__main__":
               row.midlat, row.latwidth, row.decomposeed, outpath)
 
     for i in range(n_lcs):
-        generate_lc(*inputs)
+        get_flares(*inputs)
 
     # --------------------- RUN LOOP WITH INPUTS END ---------------------------

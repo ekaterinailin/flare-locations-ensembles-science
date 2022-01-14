@@ -1,11 +1,119 @@
 import pytest
 import numpy as np
 
+import os
+
+from altaipony.flarelc import FlareLightCurve
+
 from ..flares import (wrapped_aflare,
-                mock_decompose_ed,
-                create_flare_light_curve,
-                flare_contrast,
-                )
+                      mock_decompose_ed,
+                      create_flare_light_curve,
+                      flare_contrast,
+                      get_flares,
+                     )
+
+def test_get_flares():
+    """Integration test for sensible parameters with
+    both random and fixed mid latitude.
+    """
+    # --------------- RANDOM MID LATITUDE -------------------
+    # -------------------- INPUTS ---------------------------
+
+    # time series in rad
+    t = np.linspace(0, 2 * np.pi, 2000)
+
+    # define flare light curve
+    flc = FlareLightCurve(time=t)
+    flc.detrended_flux_err = 1e-11
+
+    # define input parameters
+    n_spots_max = 1
+    alpha_min, alpha_max = 1.5, 2.5
+    beta_min, beta_max = 1, 20
+    latwidth = 5
+
+    # collect the above and fixed inputs
+    inputs = [[0.5079, 0.2239], flc, 1, 10000, 1e-11, 
+              0.01, 3, alpha_min, alpha_max, 
+              beta_min, beta_max, 1, n_spots_max, 
+              "random", latwidth, 
+              "decompose_ed_from_UCDs_and_Davenport", "testfile"]
+
+    # -------------------- INPUTS END -----------------------
+
+    # ------------------- CALL FUNCTION ---------------------
+
+    # get flares    
+    flares = get_flares(*inputs)
+
+    # ----------------- CALL FUNCTION END -------------------
+
+    # ----------------- RUN TESTS -------------------
+
+    # 13 general flare and lc properties and 4 spot specific ones
+    assert len(flares.columns) == 4 * n_spots_max + 13
+
+    # save light curve size as put in
+    assert (flares.total_n_valid_data_points.values == 2000.).all()
+
+    # some properties should be the same for all flares
+    for col in ["midlat_deg", "inclination_deg", "n_spots", "starid"]:
+        assert (flares[col].values == flares[col].values[0]).all()
+
+    # check spot specific properties
+    for i in range(n_spots_max):
+        # alpha should stay within margins
+        assert (flares[f"alpha_{i+1}"].values < -alpha_min).all()
+        assert (flares[f"alpha_{i+1}"].values > -alpha_max).all()
+
+        # beta should stay within margins
+        assert (flares[f"beta_{i+1}"].values > beta_min).all()
+        assert (flares[f"beta_{i+1}"].values < beta_max).all()
+
+        # lon should stay within margins
+        assert (flares[f"lon_deg_{i+1}"].values > 0).all()
+        assert (flares[f"lon_deg_{i+1}"].values < 360).all()
+
+        # lat should stay within margins
+        assert (flares[f"lat_deg_{i+1}"].values > latwidth / 2.).all()
+        assert (flares[f"lat_deg_{i+1}"].values < 90. - latwidth / 2.).all()
+
+
+        # spot properties are either the same for all flares or NaN
+        for col in ["beta","alpha","lon_deg","lat_deg"]:
+            assert ((flares[f"{col}_{i+1}"].values == 
+                     flares[f"{col}_{i+1}"].values[0]).all() |
+                    flares[f"{col}_{i+1}"].isnull().all())
+
+    # it shouldn't recover more flares than were put in:
+    assert flares.shape[0] < n_spots_max * beta_max
+
+    # --------------- RUN TESTS END -----------------
+
+
+
+    # -------------- FIXED MID LATITUDE --------------
+
+    # change random to fixed value in deg
+    midlat = 30.
+    inputs[13] =  midlat
+
+    # get flares    
+    flares = get_flares(*inputs)
+
+    # check latitudes 
+    for i in range(n_spots_max):
+        # lat should stay within margins
+        assert (flares[f"lat_deg_{i+1}"].values > midlat - latwidth / 2.).all()
+        assert (flares[f"lat_deg_{i+1}"].values < midlat + latwidth / 2.).all()
+
+    # -------------- FIXED MID LATITUDE END ------------
+
+
+    # clean up
+    os.remove("testfile")
+
+
 
 def test_flare_contrast1():
     """Test #1. Integration and unit tests with either
