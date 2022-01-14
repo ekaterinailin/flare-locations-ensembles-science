@@ -1,5 +1,1 @@
-,,,"u_ld_0","u_ld_1","emin","emax","alphamin","alphamax","betamin","betamax","size_lc","errval","spot_radius","midlat","latwidth","n_spots_min","n_spots_max","n_lcs"
-"14_01_2022_13_43","train","results/14_01_2022_13_43_flares_train.csv",0.5079,0.2239,0.1,1000000,1.5,2.5,1,30,2000,5E-12,0.01,"random",1E-05,1,3,100000
-"14_01_2022_13_43","validate","results/14_01_2022_13_43_flares_validate.csv",0.5079,0.2239,0.1,1000000,1.5,2.5,1,30,2000,5E-12,0.01,"random",1E-05,1,3,10000
-"14_01_2022_13_46","train","results/14_01_2022_13_46_flares_train.csv",0.5079,0.2239,0.1,1000000,1.5,2.5,1,30,2000,5E-12,0.01,"random",1E-05,1,3,100000
-"14_01_2022_13_46","validate","results/14_01_2022_13_46_flares_validate.csv",0.5079,0.2239,0.1,1000000,1.5,2.5,1,30,2000,5E-12,0.01,"random",1E-05,1,3,10000
+"tstamp","typ","outpath","u_ld_0","u_ld_1","emin","emax","alphamin","alphamax","betamin","betamax","size_lc","errval","spot_radius","midlat","latwidth","n_spots_min","n_spots_max","n_lcs"

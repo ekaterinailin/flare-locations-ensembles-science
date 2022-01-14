@@ -7,19 +7,14 @@ MIT License (2022)
 
 import numpy as np
 
-import astropy.units as u
-
-from altaipony.flarelc import FlareLightCurve
-
-from flares.flares import generate_lcs
-
 from datetime import date, datetime
 
 import sys
 
+from flares.__init__ import LOG_DATA_OVERVIEW_PATH
 
 if __name__ == "__main__":
-    
+  
     today = datetime.now().strftime("%d_%m_%Y_%H_%M")
 
     # quadratic limd darkening
@@ -52,9 +47,6 @@ if __name__ == "__main__":
     # total number of light curves given from command line
     n_lcs = int(sys.argv[1])
 
-    # generate only one lc per iteration to make code less complicated
-    n_inclinations = 1
-
     # choose random mid latitude or fix it
     midlat = "random"
     
@@ -76,13 +68,13 @@ if __name__ == "__main__":
 
     # number of light curves per core
     n_lcs_per_batch = n_lcs // batches    
-    command =  f"python 09_generate_data.py {today} {n_lcs_per_batch} {path}\n"    
+    command =  f"python 09_generate_data.py {today} {n_lcs_per_batch} {path} train\n"    
 
     with open("09_script_training_data.sh", "w") as f:
         for i in range(batches):
             f.write(command)   
 
-    with open("results/overview_synthetic_data.csv", "a") as f:
+    with open(LOG_DATA_OVERVIEW_PATH, "a") as f:
         line = (f"{today},train,{path},{inputs},{n_lcs}\n")
         f.write(line)
 
@@ -102,13 +94,13 @@ if __name__ == "__main__":
     # number of light curves per core
     n_lcs_per_batch = n_lcs // batches // factor_smaller  
  
-    command =  f"python 09_generate_data.py {today} {n_lcs_per_batch} {path}\n"    
+    command =  f"python 09_generate_data.py {today} {n_lcs_per_batch} {path} validate\n"    
 
     with open("09_script_training_data.sh", "a") as f:
         for i in range(batches):
             f.write(command)  
 
-    with open("results/overview_synthetic_data.csv", "a") as f:
+    with open(LOG_DATA_OVERVIEW_PATH, "a") as f:
         line = (f"{today},validate,{path},{inputs},{n_lcs // factor_smaller}\n")
         f.write(line)
 
