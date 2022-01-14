@@ -1,5 +1,6 @@
 """ 
-Flare module.
+Flare module. 
+`generate_lcs` wraps the module.
 
 Ekaterina Ilin 
 MIT License (2022)
@@ -11,6 +12,127 @@ import numpy as np
 
 from altaipony.altai import aflare
 from altaipony.utils import generate_random_power_law_distribution
+
+from .decomposeed import (decompose_ed_from_UCDs_and_Davenport,
+                         decompose_ed_randomly_and_using_Davenport,
+                         )
+
+def generate_lcs(u_ld, t, emin, emax, errval, flc, spot_radius, n_inclinations, 
+                alphamin, alphamax, betamin, betamax, n_spots_min,
+                n_spots_max, midlat, latwidth, path):
+    """Generate a light curve of star with parameters drawn from a
+    defined distribution.
+
+    Parameters:
+    ------------
+    u_ld : 2-tuple of floats
+        quadratic limb darkening coefficients
+    t : n-array
+        array of observing times of size n
+    emin, emax : float
+        minimum and maximum flare energy allowed to be generated
+        unit is [s], measured in equivalent duration space
+    errval : float
+        std of quiescent light curve, used to add Gaussian noise to
+        the light curve
+    flc : FlareLightCurve
+        light curve with t as time series, detrended flux_err=errval, 
+        and it_med=1
+    spot_radius : float < 1.
+        radius of active region in units of stellar radius
+    n_inclinations : int>=1
+        number of stars to generate light curves for at random inclinations
+    alphamin, alphamax : floats > 0, alphamax > alphamin
+        power law index range of flare frequency distribution
+    betamin, betamax : ints > 1, betamax > betamin
+        power law offset range of flare frequency distribution, number of
+        flares in light curve
+    n_spots_min, n_spots_max : ints >=1, n_spots_max > n_spots_min
+        range of number of spots to be generated in active latitude strip
+    midlat, latwidth : float and float or "random", 
+	if random: latwidth / 2. < midlat < 90 - latwidth / 2.
+        mid latitude and width of active latitude strip
+    path : str
+        path to file
+ 
+    """
+    # number of spots, note that randint is [low, high)!
+    n_spots = np.random.randint(n_spots_min, n_spots_max + 1)
+    
+    # alpha different for each spot possible
+    alpha = - np.random.rand(n_spots) * (alphamax - alphamin) - alphamin
+    
+    # number of flares per light curve, note that randint is [low, high)!  
+    beta = np.random.randint(betamin, betamax + 1, size=n_spots)
+    
+    # make flare light curves
+    flares = flare_contrast(t, n_spots, [emin] * n_spots, [emax] * n_spots, alpha, beta, 
+                            n_inclinations,
+                            decompose_ed=decompose_ed_randomly_and_using_Davenport)
+    
+    # pick a random mid-latitude that does go below 0. or above 90.
+    if midlat == "random":    
+        midlat = np.random.rand() * (90. -  latwidth) + latwidth / 2.
+
+    # make flaring spots
+    lons, lats, radii, inc_stellar = generate_spots(midlat - latwidth / 2. , midlat + latwidth / 2. ,
+                                                    [spot_radius] * n_spots, n_spots,
+                                                    n_inclinations=n_inclinations)
+    # make star!
+    star = Star(spot_contrast=flares, phases=t * u.rad, u_ld=u_ld)
+    
+    # make size 3 array
+    betaa = np.array([np.nan] * 3)
+    betaa[:len(beta)] = beta
+    
+    # make size 3 array
+    alphaa = np.array([np.nan] * 3)
+    alphaa[:len(alpha)] = alpha
+    
+    # make size 3 array
+    lonsa = np.array([np.nan] * 3)
+    lonsa[:len(lons)] = lons[:,0].value
+    
+    # get light curve
+    lcs = star.light_curve(lons, lats, radii, inc_stellar)
+    lc = lcs[:,0]
+    
+    # define light curve
+    flc.flux = lc
+    flc.detrended_flux = lc + np.random.normal(0, errval, len(lc))
+    
+    # search for flares
+    flares = flc.find_flares().flares
+    
+    del flares["cstart"]
+    del flares["cstop"]
+    
+    # add latitude, inclination
+    flares["midlat_deg"] = lats[0,0].value # mid latitude
+    flares["inclination_deg"] = inc_stellar[0].value # inclination
+    
+    # save input parameters
+    flares["n_spots"] = n_spots
+    
+    flares["beta_1"] = betaa[0]
+    flares["beta_2"] = betaa[1]
+    flares["beta_3"] = betaa[2]
+    
+    flares["alpha_1"] = alphaa[0]
+    flares["alphaa_2"] = alphaa[1]
+    flares["alpha_3"] = alphaa[2]
+    
+    flares["lons_1"] = lonsa[0]
+    flares["lons_2"] = lonsa[1]
+    flares["lons_3"] = lonsa[2]
+    
+    # add identifier for each LC
+    flares["starid"] = datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
+    
+    # write results to file if any flares were found 
+    if flares.shape[0] > 0:
+        with open(path, "a") as file:
+            flares.to_csv(file, index=False, header=False)
 
 
 def flare_contrast(t, n_spots, emin, emax, alpha, beta, n_inclinations, **kwargs):
