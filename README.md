@@ -32,7 +32,7 @@ Output:
 
 #### Get summary statistics
 
-Now that we have our training and validation data sets, let's compute summary statistics. We do this because we don't want to use the information about individual flares, because they are randomly generated from a power law distribution, but statistics that give a single number for each light curve, e.g., the total number of flares or the waiting times between flares.
+Now that we have our training and validation data sets, let's compute summary statistics. We do this because we don't want to use the information about individual flares, because they are randomly generated from a power law distribution, but statistics that give a single number for each light curve or even ensembles of light curves with similar active latitude, e.g., the total number of flares or the waiting times between flares.
 
 Call `10_make_script_for_get_aggregate_parameters.py <training/validation data set> <number of splits>`
 
@@ -49,5 +49,5 @@ Output:
 - `11_applyscript_<timestamp2>_<timestamp1>_flares_validate.sh`
 - `12_merge_<timestamp2>_<timestamp1>_flares_validate.sh`
 
-
+If you are doing aggregate statistics for ensembles of light curves, take care not to split the training and validation data into too small chunks, in particular the validation set.  Divide `<total number of LCs> / <number of splits> / 200` to get the number of lc per ensemble. It should be at least 200 to effectively marginalize over inclinations, and get a decently narrow active latitude width.
 
