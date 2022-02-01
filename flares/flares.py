@@ -145,13 +145,13 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     # write results to file if any flares were found 
     if flares.shape[0] > 0:
         # write header if necessary, but only once
-    	file_exists = exists(path)
-	    if file_exists:
-	        with open(path, "a") as file:
-	            flares.to_csv(file, index=False, header=False)
-	    else:
-	        with open(path, "a") as file:
-	            flares.to_csv(file, index=False, header=True)
+        file_exists = exists(path)
+        if file_exists:
+            with open(path, "a") as file:
+                flares.to_csv(file, index=False, header=False)
+        else:
+            with open(path, "a") as file:
+                flares.to_csv(file, index=False, header=True)
 
     return flares
 

@@ -4,7 +4,8 @@ import pandas as pd
 from altaipony.flarelc import FlareLightCurve
 
 from flares.flares import get_flares
-from flares.decomposeed import 
+
+from flares.__init__ import LOG_DATA_OVERVIEW_PATH                     
 
 import sys
 
@@ -36,7 +37,7 @@ if __name__ == "__main__":
     # only n_lcs does not fit because we are dealing with batches here
     row = df[(df.typ == typ) &
              (df.tstamp == tstamp) &
-             (df.outpath == outpath)]
+             (df.outpath == outpath)].iloc[0]
 
     # ------------------ LOG FILE INPUT PARAMETERS END -------------------------
 
@@ -67,7 +68,7 @@ if __name__ == "__main__":
 
     # ---------------------- RUN LOOP WITH INPUTS ------------------------------
 
-    inputs = ((u_ld_0, u_ld_1), flc, row.emin, row.emax, row.errval,
+    inputs = ((row.u_ld_0, row.u_ld_1), flc, row.emin, row.emax, row.errval,
               row.spot_radius, n_inclinations,row.alphamin, row.alphamax,
               row.betamin, row.betamax, row.n_spots_min, row.n_spots_max, 
               row.midlat, row.latwidth, row.decomposeed, outpath)

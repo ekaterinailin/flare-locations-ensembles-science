@@ -16,7 +16,7 @@ from flares.__init__ import (LOG_DATA_OVERVIEW_PATH,
                             )
 
 DECOMPFUNCS = ["decompose_ed_randomly_and_using_Davenport",
-	           "decompose_ed_from_UCDs_and_Davenport")
+	           "decompose_ed_from_UCDs_and_Davenport"]
 
 if __name__ == "__main__":
   
