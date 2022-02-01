@@ -65,7 +65,7 @@ if __name__ == "__main__":
               f"{n_spots_min},{n_spots_max},{decomposeed}")
     
     # how many batches
-    batches = 20
+    batches = int(sys.argv[2])
 
     # -------------------------- TRAINING SET ----------------------------------
     
@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     # number of light curves per core
     n_lcs_per_batch = n_lcs // batches    
-    command =  f"python 09_generate_data.py {today} {n_lcs_per_batch} {path} train\n"    
+    command =  f"python 09_generate_training_data.py {today} {n_lcs_per_batch} {path} train\n"    
 
     with open(SCIPT_NAME_GENERATE_DATA, "w") as f:
         for i in range(batches):
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # number of light curves per core
     n_lcs_per_batch = n_lcs // batches // factor_smaller  
  
-    command =  f"python 09_generate_data.py {today} {n_lcs_per_batch} {path} validate\n"    
+    command =  f"python 09_generate_training_data.py {today} {n_lcs_per_batch} {path} validate\n"    
 
     with open(SCIPT_NAME_GENERATE_DATA, "a") as f:
         for i in range(batches):

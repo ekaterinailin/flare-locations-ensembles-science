@@ -1,16 +1,4 @@
 """ 
-Module to generate scripts to execute a module
-on a split dataset, and merge the output files back 
-together.
-
-How to call:
-
-python 11_generate_data_splitting_and_merging_scripts.py <dataframe you want to split> <desired number of splits> <column to split on> <module to apply to splitted frames>
-
-
-e.g.:
-
-python 11_generate_data_splitting_and_merging_scripts.py results/2022_01_10_flares_alpha_beta_rand.csv 100 starid 10_get_aggregate_parameters.py
 
 
 Ekaterina Ilin 
@@ -22,48 +10,62 @@ import pandas as pd
 from datetime import date
 import sys
 
+from flares.__init__ import (SCRIPT_NAME_GET_AGGREGATE_PARAMETERS,
+							 SCRIPT_NAME_MERGE_FILES,
+							)
+
 if __name__ == "__main__":
     
+	# timestamp2
     today = date.today().strftime("%Y_%m_%d")
     
+	# training data
     df_to_split_name = sys.argv[1]
+    df_to_split = pd.read_csv(df_to_split_name)
     
-    df_to_split = pd.read_csv(df_to_split_name, 
-                              names=['istart','istop','tstart','tstop',                  
-                              'ed_rec','ed_rec_err','ampl_rec',
-                              'dur','total_n_valid_data_points','midlat_deg',
-                              'inclination_deg','n_spots','beta_1',
-                              'beta_2','beta_3','alpha_1',
-                              'alpha_2','alpha_3','lons_1',
-                              'lons_2','lons_3','starid'])
-    
+	# split the data set
     nsplits = int(sys.argv[2])
     
-    split_by = sys.argv[3]
+	# split such that flare tables for individual LCs are kept together
+    split_by = "starid"
     
-    applyscript = sys.argv[4]
+	# apply the default script to apply to each split dataset
+    applyscript = SCRIPT_NAME_GET_AGGREGATE_PARAMETERS
     
+	# get the indices to the rows in each data set
     split_df_rows = np.array_split(df_to_split[split_by].unique(), nsplits)
     
+	# get a list of DataFrames split by the above indices
     split_dfs = [df_to_split[df_to_split[split_by].isin(rows)] for rows in split_df_rows]
     print(f"Split DataFrame into {nsplits} smaller frames.")
     
+	# define naming including timestamp1
     namecore = df_to_split_name[8:-4]
 
+	# write a script to apply to all DataFrames
     scriptname = f"11_applyscript_{today}_{namecore}.sh"
     with open(scriptname, "w") as fin:
+		# cycle over each split data set
         for i, df_ in enumerate(split_dfs):
+			# define temporary input and output datasets
             finname = f"results/11_applyscript_{today}_{namecore}_{i}.csv"
             foutname = f"results/12_merge_{today}_{namecore}_{i}.csv"
+			# write out the temporary split data set
             df_.to_csv(finname)
+			# define the command to get aggregate parameters on this dataset			
             applyscript_command = f"python {applyscript} {finname} {foutname}\n"
+			# add the command to the script
             fin.write(applyscript_command)
+
     print(f"Generated script to apply module {applyscript} to split frames:\n{scriptname}\n")
     
+	# write a script to merge the aggregated temporary DataFrames back together
     scriptname = f"12_merge_{today}_{namecore}.sh"
     with open(scriptname, "w") as fout:
-        merge_command = f"python 12_merge_files.py 11_merge_{today}_{namecore} {nsplits}\n"
+		# define the merging command and write it into the script
+        merge_command = f"python {SCRIPT_NAME_MERGE_FILES} 11_merge_{today}_{namecore} {nsplits}\n"
         fout.write(merge_command)
+		# delete temporary input and output files in the end
         for i in range(nsplits):
             delete_command = (f"rm results/11_applyscript_{today}_{namecore}_{i}.csv\n"
                               f"rm results/12_merge_{today}_{namecore}_{i}.csv\n")
