@@ -1,5 +1,10 @@
+import numpy as np
+import pandas as pd
+
+
 def basic_stats(group, col):
-    """Calculate basic statistic about flare parameter col.
+    """NOT TESTED
+    Calculate basic statistic about flare parameter col.
     
     Parameters:
     ------------
@@ -23,7 +28,8 @@ def basic_stats(group, col):
 
 
 def basic_diff_stats(group, col, steps):
-    """Calculate basic statistic about flare parameter col.
+    """NOT TESTED
+    Calculate basic statistic about flare parameter col.
     
     Parameters:
     ------------
@@ -52,7 +58,7 @@ def basic_diff_stats(group, col, steps):
 
 
 
-def calibratable_diff_stats(group, col, steps, nens=200):
+def calibratable_diff_stats(group, col, steps, size=200):
     """Calculate statistics about flare parameter col that are 
     independent of the flare distribution and only concerned with
     the timing.
@@ -66,8 +72,8 @@ def calibratable_diff_stats(group, col, steps, nens=200):
         column of grouped table with a flare parameter
     steps : int
         step size of difference calculation
-    nens : int
-        number of ensembles to split the table in
+    size : int
+        size of the ensemble to split the table into
         
     Return:
     -------
@@ -83,19 +89,19 @@ def calibratable_diff_stats(group, col, steps, nens=200):
     cut, bins = pd.cut(se["midlat_deg"],
                        np.linspace(se["midlat_deg"].min(),
                                    se["midlat_deg"].max(), 
-                                   se.shape[0] // nens),
+                                   se.shape[0] // size),
                        retbins=True)
     
     agg = se.groupby(cut)
     
     # Calculate kurtosis of group
-    k = agg.apply(lambda x: x.kurtosis())["tstart"]
+    k = agg.apply(lambda x: x.kurtosis())[col]
     
     # Calculate skewness of group
-    s = agg.apply(lambda x: x.skew())["tstart"]
+    s = agg.apply(lambda x: x.skew())[col]
     
     # Calculate std/over mean of group
-    sm = agg.apply(lambda x: x.std()/x.mean())["tstart"]
+    sm = agg.apply(lambda x: x.std() / x.mean())[col]
     
     # define column names and return DataFrame
     listofsuffixes = ['kurtosis', 'skew', 'std_over_mean']
