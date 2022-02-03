@@ -20,8 +20,8 @@ if __name__ == "__main__":
     
     df = pd.concat(list_of_dataframes)
     
-    df.to_csv(f"{mergename}_merged.csv")
+    df.to_csv(f"results/{mergename[9:]}_merged.csv", index=False)
     
-    print(f"Saved final results to {mergename}_merged.csv\n")
+    print(f"Saved final results to {mergename[9:]}_merged.csv\n")
     
     

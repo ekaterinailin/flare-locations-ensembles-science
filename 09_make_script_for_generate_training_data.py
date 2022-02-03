@@ -20,7 +20,7 @@ DECOMPFUNCS = ["decompose_ed_randomly_and_using_Davenport",
 
 if __name__ == "__main__":
   
-    today = datetime.now().strftime("%d_%m_%Y_%H_%M")
+    today = datetime.now().strftime("%Y_%m_d%_%H_%M")
 
     # quadratic limd darkening
     u_ld = [0.5079, 0.2239]
