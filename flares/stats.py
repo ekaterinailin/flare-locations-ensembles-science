@@ -107,4 +107,4 @@ def calibratable_diff_stats(group, col, steps, size=200):
     listofsuffixes = ['kurtosis', 'skew', 'std_over_mean']
     list_of_colnames = [f"diff_{col}_{suf}_stepsize{steps}" for suf in listofsuffixes]
     return pd.DataFrame(dict(zip(list_of_colnames, [k, s, sm]))), bins
-
+	
