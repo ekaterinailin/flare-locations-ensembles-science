@@ -56,6 +56,7 @@ if __name__ == "__main__":
             applyscript_command = f"python {applyscript} {finname} {foutname}\n"
 			# add the command to the script
             fin.write(applyscript_command)
+        
 
     print(f"Generated script to apply module {applyscript} to split frames:\n{scriptname}\n")
     

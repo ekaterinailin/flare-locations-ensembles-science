@@ -20,7 +20,7 @@ DECOMPFUNCS = ["decompose_ed_randomly_and_using_Davenport",
 
 if __name__ == "__main__":
   
-    today = datetime.now().strftime("%Y_%m_d%_%H_%M")
+    today = datetime.now().strftime("%Y_%m_%d_%H_%M")
 
     # quadratic limd darkening
     u_ld = [0.5079, 0.2239]
@@ -66,6 +66,9 @@ if __name__ == "__main__":
     
     # how many batches
     batches = int(sys.argv[2])
+    
+    # cleaning string that removes all row that are headers except for the first row inplace
+    clean_header = "sed '1!{/^istart,istop,tstart,tstop,ed_rec,ed_rec_err,ampl_rec,dur,total_n_valid_data_points,midlat_deg,inclination_deg,n_spots,beta_1,alpha_1,lon_deg_1,lat_deg_1,beta_2,alpha_2,lon_deg_2,lat_deg_2,beta_3,alpha_3,lon_deg_3,lat_deg_3,starid/d;}' -i" 
 
     # -------------------------- TRAINING SET ----------------------------------
     
@@ -80,7 +83,10 @@ if __name__ == "__main__":
 
     with open(SCIPT_NAME_GENERATE_DATA, "w") as f:
         for i in range(batches):
-            f.write(command)   
+            f.write(command)
+        # remove headers that got lost inside the dataframe
+        cleanup = f"{clean_header} {path}\n"
+        f.write(cleanup)
 
     with open(LOG_DATA_OVERVIEW_PATH, "a") as f:
         line = (f"{today},train,{path},{inputs},{n_lcs}\n")
@@ -106,7 +112,10 @@ if __name__ == "__main__":
 
     with open(SCIPT_NAME_GENERATE_DATA, "a") as f:
         for i in range(batches):
-            f.write(command)  
+            f.write(command)
+        # remove headers that got lost inside the dataframe
+        cleanup = f"{clean_header} {path}\n"
+        f.write(cleanup)
 
     with open(LOG_DATA_OVERVIEW_PATH, "a") as f:
         line = (f"{today},validate,{path},{inputs},{n_lcs // factor_smaller}\n")
