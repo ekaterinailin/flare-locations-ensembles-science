@@ -16,7 +16,7 @@ from flares.__init__ import (SCRIPT_NAME_GET_AGGREGATE_PARAMETERS,
 
 if __name__ == "__main__":
     
-	# timestamp2
+    # timestamp2
     today = date.today().strftime("%Y_%m_%d")
     
 	# training data
@@ -56,6 +56,7 @@ if __name__ == "__main__":
             applyscript_command = f"python {applyscript} {finname} {foutname}\n"
 			# add the command to the script
             fin.write(applyscript_command)
+        
 
     print(f"Generated script to apply module {applyscript} to split frames:\n{scriptname}\n")
     
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     scriptname = f"12_merge_{today}_{namecore}.sh"
     with open(scriptname, "w") as fout:
 		# define the merging command and write it into the script
-        merge_command = f"python {SCRIPT_NAME_MERGE_FILES} 11_merge_{today}_{namecore} {nsplits}\n"
+        merge_command = f"python {SCRIPT_NAME_MERGE_FILES} 12_merge_{today}_{namecore} {nsplits}\n"
         fout.write(merge_command)
 		# delete temporary input and output files in the end
         for i in range(nsplits):

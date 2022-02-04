@@ -1,3 +1,9 @@
 "tstamp","typ","outpath","u_ld_0","u_ld_1","emin","emax","alphamin","alphamax","betamin","betamax","size_lc","errval","spot_radius","midlat","latwidth","n_spots_min","n_spots_max","decomposeed","n_lcs"
 01_02_2022_11_06,train,results/01_02_2022_11_06_flares_train.csv,0.5079,0.2239,0.1,1000000.0,1.5,2.5,1,30,2000,5e-12,0.01,random,1e-05,1,3,decompose_ed_from_UCDs_and_Davenport,100000
 01_02_2022_11_06,validate,results/01_02_2022_11_06_flares_validate.csv,0.5079,0.2239,0.1,1000000.0,1.5,2.5,1,30,2000,5e-12,0.01,random,1e-05,1,3,decompose_ed_from_UCDs_and_Davenport,10000
+2022_02_d%H_11,train,results/2022_02_d%H_11_flares_train.csv,0.5079,0.2239,0.1,1000000.0,1.5,2.5,1,30,2000,5e-12,0.01,random,1e-05,1,3,decompose_ed_from_UCDs_and_Davenport,100000
+2022_02_d%H_11,validate,results/2022_02_d%H_11_flares_validate.csv,0.5079,0.2239,0.1,1000000.0,1.5,2.5,1,30,2000,5e-12,0.01,random,1e-05,1,3,decompose_ed_from_UCDs_and_Davenport,10000
+2022_02_03_12_14,train,results/2022_02_03_12_14_flares_train.csv,0.5079,0.2239,0.1,1000000.0,1.5,2.5,1,30,2000,5e-12,0.01,random,1e-05,1,3,decompose_ed_from_UCDs_and_Davenport,100000
+2022_02_03_12_14,validate,results/2022_02_03_12_14_flares_validate.csv,0.5079,0.2239,0.1,1000000.0,1.5,2.5,1,30,2000,5e-12,0.01,random,1e-05,1,3,decompose_ed_from_UCDs_and_Davenport,10000
+2022_02_04_11_23,train,results/2022_02_04_11_23_flares_train.csv,0.5079,0.2239,0.1,1000000.0,1.5,2.5,1,30,2000,5e-12,0.01,random,1e-05,1,3,decompose_ed_from_UCDs_and_Davenport,1000000
+2022_02_04_11_23,validate,results/2022_02_04_11_23_flares_validate.csv,0.5079,0.2239,0.1,1000000.0,1.5,2.5,1,30,2000,5e-12,0.01,random,1e-05,1,3,decompose_ed_from_UCDs_and_Davenport,100000

@@ -87,9 +87,13 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     # pick a random mid-latitude that does go below 0. or above 90.
     if midlat == "random":    
         midlat = np.random.rand() * (90. -  latwidth) + latwidth / 2.
-
+    
+    # new on 2022-02-03: pick to place the spot on one of the hemispheres
+    sign = np.random.choice([1,-1])    
+        
     # make flaring spots
-    lons, lats, radii, inc_stellar = generate_spots(midlat - latwidth / 2. , midlat + latwidth / 2. ,
+    lons, lats, radii, inc_stellar = generate_spots(sign * (midlat - latwidth / 2.) ,
+                                                    sign * (midlat + latwidth / 2.) ,
                                                     spot_radius, n_spots,
                                                     n_inclinations=n_inclinations)
     # make star!
