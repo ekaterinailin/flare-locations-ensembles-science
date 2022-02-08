@@ -131,7 +131,7 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     del flares["cstop"]
     
     # add latitude, inclination
-    flares["midlat_deg"] = lats[0,0].value # mid latitude
+    flares["midlat_deg"] = np.abs(lats[0,0].value) # mid latitude
     flares["inclination_deg"] = inc_stellar[0].value # inclination
     
     # save input parameters

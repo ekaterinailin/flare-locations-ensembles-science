@@ -20,16 +20,19 @@ if __name__ == "__main__":
     
     # grouping by ID and mid-latitude separates individual light curves
     group = dfsort.groupby(["starid","midlat_deg"])
+
+    #size of ensemble
+    size = 2000
     
     # calculate aggregate statistics with different lags, i.e. step sizes
     print("Do calibratable stats step size 1.")
-    res, bins = calibratable_diff_stats(group, 'tstart', 1)
+    res, bins = calibratable_diff_stats(group, 'tstart', 1, size=size)
 
     print("Do calibratable stats step size 2.")
-    res = res.join(calibratable_diff_stats(group, 'tstart', 2)[0])
+    res = res.join(calibratable_diff_stats(group, 'tstart', 2, size=size)[0])
 
     print("Do calibratable stats step size 3.")
-    res = res.join(calibratable_diff_stats(group, 'tstart', 3)[0])    
+    res = res.join(calibratable_diff_stats(group, 'tstart', 3, size=size)[0])    
     
     # calculate mid-/min-/max-/width of latitudes of ensembles of lcs
     res["midlat2"] = (bins[:-1] + bins[1:]) / 2.
