@@ -89,14 +89,14 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
         midlat = np.random.rand() * (90. -  latwidth) + latwidth / 2.
     
     # new on 2022-02-03: pick to place the spot on one of the hemispheres
-    sign = np.random.choice([1,-1])    
+    sign = np.random.choice([1,-1], size=n_spots)    
         
     # make flaring spots
     lons, lats, radii, inc_stellar = generate_spots(sign * (midlat - latwidth / 2.) ,
                                                     sign * (midlat + latwidth / 2.) ,
                                                     spot_radius, n_spots,
                                                     n_inclinations=n_inclinations)
-    # make star!
+    # make star! 
     star = Star(spot_contrast=flares, phases=flc.time.value * u.rad, u_ld=u_ld)
     
     # make array in the number of spots size
@@ -126,9 +126,10 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     
     # search for flares
     flares = flc.find_flares().flares
-    
+    print(flares.head().T)
     del flares["cstart"]
     del flares["cstop"]
+
     
     # add latitude, inclination
     flares["midlat_deg"] = np.abs(lats[0,0].value) # mid latitude
@@ -146,8 +147,10 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     # add identifier for each LC
     flares["starid"] = datetime.now().strftime("%d_%m_%Y_%H_%M_%S_%f")
     
+      
     # write results to file if any flares were found 
     if flares.shape[0] > 0:
+        del flares["total_n_valid_data_points"]
         # write header if necessary, but only once
         file_exists = exists(path)
         if file_exists:
@@ -156,7 +159,7 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
         else:
             with open(path, "a") as file:
                 flares.to_csv(file, index=False, header=True)
-
+    
     return flares
 
 def flare_contrast(t, n_spots, emin, emax, alpha, beta, n_inclinations, **kwargs):

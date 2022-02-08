@@ -50,11 +50,8 @@ def test_get_flares():
 
     # ----------------- RUN TESTS -------------------
 
-    # 13 general flare and lc properties and 4 spot specific ones
-    assert len(flares.columns) == 4 * n_spots_max + 13
-
-    # save light curve size as put in
-    assert (flares.total_n_valid_data_points.values == 2000.).all()
+    # 12 general flare and lc properties and 4 spot specific ones
+    assert len(flares.columns) == 4 * n_spots_max + 12
 
     # some properties should be the same for all flares
     for col in ["midlat_deg", "inclination_deg", "n_spots", "starid"]:
@@ -75,8 +72,8 @@ def test_get_flares():
         assert (flares[f"lon_deg_{i+1}"].values < 360).all()
 
         # lat should stay within margins
-        assert (flares[f"lat_deg_{i+1}"].values > latwidth / 2.).all()
-        assert (flares[f"lat_deg_{i+1}"].values < 90. - latwidth / 2.).all()
+        assert (np.abs(flares[f"lat_deg_{i+1}"].values) > latwidth / 2.).all()
+        assert (np.abs(flares[f"lat_deg_{i+1}"].values) < 90. - latwidth / 2.).all()
 
 
         # spot properties are either the same for all flares or NaN
@@ -104,8 +101,8 @@ def test_get_flares():
     # check latitudes 
     for i in range(n_spots_max):
         # lat should stay within margins
-        assert (flares[f"lat_deg_{i+1}"].values > midlat - latwidth / 2.).all()
-        assert (flares[f"lat_deg_{i+1}"].values < midlat + latwidth / 2.).all()
+        assert (np.abs(flares[f"lat_deg_{i+1}"].values) > midlat - latwidth / 2.).all()
+        assert (np.abs(flares[f"lat_deg_{i+1}"].values) < midlat + latwidth / 2.).all()
 
     # -------------- FIXED MID LATITUDE END ------------
 
