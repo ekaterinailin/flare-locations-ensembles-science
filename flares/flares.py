@@ -27,13 +27,15 @@ DECOMPOSEED_DICT = {"decompose_ed_from_UCDs_and_Davenport" :
                     "decompose_ed_randomly_and_using_Davenport" :
                     decompose_ed_randomly_and_using_Davenport}
 
+exp_decay = lambda x, A, t, y0: A * np.exp(x * t) + y0
+
 from fleck import generate_spots, Star
 
 import matplotlib.pyplot as plt
 
 def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations, 
                alphamin, alphamax, betamin, betamax, n_spots_min,
-               n_spots_max, midlat, latwidth, decomposeed, path):
+               n_spots_max, midlat, latwidths, decomposeed, path):
     """Generate a light curve of star with parameters drawn from a
     defined distribution.
 
@@ -42,7 +44,7 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     u_ld : 2-tuple of floats
         quadratic limb darkening coefficients
     flc : FlareLightCurve
-        light curve with t as time series, detrended flux_err=errval, 
+        light curve with t as timbe series, detrended flux_err=errval, 
         and it_med=1
     emin, emax : float
         minimum and maximum flare energy allowed to be generated
@@ -61,7 +63,7 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
         flares in light curve
     n_spots_min, n_spots_max : ints >=1, n_spots_max > n_spots_min
         range of number of spots to be generated in active latitude strip
-    midlat, latwidth : float and float or "random", 
+    midlat, latwidths : float and float or "random", 
 	if random: latwidth / 2. < midlat < 90 - latwidth / 2.
         mid latitude and width of active latitude strip
     decomposeed : str
@@ -77,19 +79,30 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     alpha = - np.random.rand(n_spots) * (alphamax - alphamin) - alphamin
     
     # number of flares per light curve, note that randint is [low, high)!  
+#     beta = np.random.choice([2,3,3,4,4,4,5,5],size=n_spots)#
+#     beta = np.random.choice([1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3],size=n_spots)#
     beta = np.random.randint(betamin, betamax + 1, size=n_spots)
+#     factor = .55 # to get the mean right
+    # ln(betamax*2.5)*factor is to ensure we sample rounded between betamax and 0
+#     beta = [int(np.rint(exp_decay(np.random.rand() * 10., betamax - betamin, -factor, betamin)))]
     
     # make flare light curves
     flares = flare_contrast(flc.time.value, n_spots, [emin] * n_spots, [emax] * n_spots, alpha, beta, 
                             n_inclinations,
                             decompose_ed=DECOMPOSEED_DICT[decomposeed])
     
+    # on a grid of latitude widths pick one:
+    if latwidths == "list":
+        latwidth = np.random.choice([5.,10.,20.,40.,80.])
+    else:
+        latwidth = float(latwidths)
+    
     # pick a random mid-latitude that does go below 0. or above 90.
     if midlat == "random":    
         midlat = np.random.rand() * (90. -  latwidth) + latwidth / 2.
     
     # new on 2022-02-03: pick to place the spot on one of the hemispheres
-    sign = np.random.choice([1,-1], size=n_spots)    
+    sign = np.random.choice([1,-1], size=n_spots).reshape(n_spots,1)    
         
     # make flaring spots
     lons, lats, radii, inc_stellar = generate_spots(sign * (midlat - latwidth / 2.) ,
@@ -98,7 +111,8 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
                                                     n_inclinations=n_inclinations)
     # make star! 
     star = Star(spot_contrast=flares, phases=flc.time.value * u.rad, u_ld=u_ld)
-    
+
+
     # make array in the number of spots size
     betaa = np.array([np.nan] * n_spots_max)
     betaa[:len(beta)] = beta
@@ -126,14 +140,15 @@ def get_flares(u_ld, flc, emin, emax, errval, spot_radius, n_inclinations,
     
     # search for flares
     flares = flc.find_flares().flares
-    print(flares.head().T)
+
     del flares["cstart"]
     del flares["cstop"]
 
     
-    # add latitude, inclination
-    flares["midlat_deg"] = np.abs(lats[0,0].value) # mid latitude
+    # add latitude, inclination, latitude width
+    flares["midlat_deg"] = midlat # mid latitude
     flares["inclination_deg"] = inc_stellar[0].value # inclination
+    flares["latwdith"] = latwidth # inclination
     
     # save input parameters
     flares["n_spots"] = n_spots

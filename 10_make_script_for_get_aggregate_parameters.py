@@ -7,7 +7,7 @@ MIT License (2022)
 
 import numpy as np
 import pandas as pd
-from datetime import date
+from datetime import datetime
 import sys
 
 from flares.__init__ import (SCRIPT_NAME_GET_AGGREGATE_PARAMETERS,
@@ -17,7 +17,7 @@ from flares.__init__ import (SCRIPT_NAME_GET_AGGREGATE_PARAMETERS,
 if __name__ == "__main__":
     
     # timestamp2
-    today = date.today().strftime("%Y_%m_%d")
+    today = datetime.now().strftime("%Y_%m_%d_%H_%M")
     
 	# training data
     df_to_split_name = sys.argv[1]

@@ -32,13 +32,13 @@ if __name__ == "__main__":
     emin, emax = 1e-1, 1e6
 
     # min and max powerlaw exponent
-    alphamin, alphamax = 1.5, 2.5
+    alphamin, alphamax = 1.5, 1.5
 
     # min and max number of flares per lc
-    betamin, betamax = 1, 30
+    betamin, betamax = 10,20
 
     # numbers of spots
-    n_spots_min, n_spots_max = 1, 3
+    n_spots_min, n_spots_max = 1,1
 
     # Gaussian noise level
     errval = 5e-12
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     spot_radius = 0.01
 
     # pick a latitude width to scatter the spots around a bit
-    latwidth = 1e-5
+    latwidth = 5
 
     # total number of light curves given from command line
     n_lcs = int(sys.argv[1])
@@ -68,7 +68,9 @@ if __name__ == "__main__":
     batches = int(sys.argv[2])
     
     # cleaning string that removes all row that are headers except for the first row inplace
-    clean_header = "sed '1!{/^istart,istop,tstart,tstop,ed_rec,ed_rec_err,ampl_rec,dur,total_n_valid_data_points,midlat_deg,inclination_deg,n_spots,beta_1,alpha_1,lon_deg_1,lat_deg_1,beta_2,alpha_2,lon_deg_2,lat_deg_2,beta_3,alpha_3,lon_deg_3,lat_deg_3,starid/d;}' -i" 
+    clean_header = "sed '1!{/^istart,istop,tstart,tstop,ed_rec,ed_rec_err,ampl_rec,dur,total_n_valid_data_points,midlat_deg,inclination_deg,n_spots,beta_1,alpha_1,lon_deg_1,lat_deg_1,starid/d;}' -i" 
+    
+#    "sed '1!{/^istart,istop,tstart,tstop,ed_rec,ed_rec_err,ampl_rec,dur,total_n_valid_data_points,midlat_deg,inclination_deg,n_spots,beta_1,alpha_1,lon_deg_1,lat_deg_1,beta_2,alpha_2,lon_deg_2,lat_deg_2,beta_3,alpha_3,lon_deg_3,lat_deg_3,starid/d;}' -i" 
 
     # -------------------------- TRAINING SET ----------------------------------
     
