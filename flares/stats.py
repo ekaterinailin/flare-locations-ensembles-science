@@ -95,17 +95,17 @@ def calibratable_diff_stats(group, col, steps, size=200):
     agg = se.groupby(cut)
 #    print(se.head())
     # Calculate kurtosis of group
-    k = agg.apply(lambda x: x[col].kurtosis())
+    k = agg.apply(lambda x:x[col].std() / x[col].sum())
     
     # Calculate skewness of group
-    s = agg.apply(lambda x: x[col].skew())
+    s = agg.apply(lambda x: x[col].std() / x[col].count())
 #    print(agg.apply(lambda x: x[col].skew()))
 #    print(agg.apply(lambda x: x.std()/x.mean()))
     # Calculate std/over mean of group
     sm = agg.apply(lambda x: x[col].std() / x[col].mean())
     
     # define column names and return DataFrame
-    listofsuffixes = ['kurtosis', 'skew', 'std_over_mean']
+    listofsuffixes = ['std_over_sum', 'std_over_count', 'std_over_mean']
     list_of_colnames = [f"diff_{col}_{suf}_stepsize{steps}" for suf in listofsuffixes]
     return pd.DataFrame(dict(zip(list_of_colnames, [k, s, sm]))), bins
 	
