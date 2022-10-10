@@ -22,7 +22,7 @@ if __name__ == "__main__":
     group = dfsort.groupby(["starid","midlat_deg"])
 
     #size of ensemble
-    size = 200
+    size = 400
     
     # calculate aggregate statistics with different lags, i.e. step sizes
     print("Do calibratable stats step size 1.")

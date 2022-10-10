@@ -17,7 +17,7 @@ from flares.__init__ import (SCRIPT_NAME_GET_AGGREGATE_PARAMETERS,
 if __name__ == "__main__":
     
     # timestamp2
-    today = datetime.now().strftime("%Y_%m_%d_%H_%M")
+    today = "2022_06_30_10_00"#datetime.now().strftime("%Y_%m_%d_%H_%M")
     
 	# training data
     df_to_split_name = sys.argv[1]
