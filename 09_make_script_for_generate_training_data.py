@@ -1,13 +1,14 @@
 """ 
-Script to generate training data.
+Wraps the script to generate training data given a total
+number of light curves as a first command line argument
+and the number of batches to split it up into as a second 
+command line argument (for parallelization).
 
 Ekaterina Ilin 
 MIT License (2022)
 """
 
-import numpy as np
-
-from datetime import date, datetime
+from datetime import datetime
 
 import sys
 

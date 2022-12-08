@@ -1,3 +1,17 @@
+""" 
+Python3 - UTF-8
+
+Ekaterina Ilin 
+MIT License (2022)
+
+Script to generate training data. Takes the time stamp of the planned
+run as a first argument. The second argument is the number of light curves
+to generate. The third argument is the path to the output file. The fourth
+argument is either "train" or "validate" to indicate whether the data is
+for training or validation.
+
+"""
+
 import numpy as np
 import pandas as pd
 
