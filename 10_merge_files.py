@@ -1,12 +1,15 @@
 """ 
+Python3.8 -- UTF-8
+
+Ekaterina Ilin 
+MIT License (2022)
+
 Script to merge dataframes that were previously split.
 Used within 12_*.sh scripts.
 Not for standalone use.
 
-
-Ekaterina Ilin 
-MIT License (2022)
 """
+
 import pandas as pd
 
 import sys
