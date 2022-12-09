@@ -1,27 +1,30 @@
 """ 
-Script to calculate the relations used to decompose
-ED into amplitude and FWHM using emprical relationship
-between ED and amplitude from TESS UCD data (Pineda et al.
-in prep.) and the inversion of the Davenport (2014) model,
-as defined in his formulae (1) and (4).
+Python3.8 -- UTF-8
 
 Ekaterina Ilin 
 MIT License (2022)
+
+Script to uses Davenport 2014 flare model and flare measurements
+from Pineda et al. in prep. to derive the relation between
+ED and amplitude. This is used to derive the FWHM from a given ED/amplitude
+ratio. The resulting linear function parameters are saved to a json file each.
+
+THIS SCRIPT PRODUCES FIGURE 1 IN THE PAPER.
+
 """
+
+import json
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-
-
-import json
-from datetime import date
 
 import matplotlib.pyplot as plt
 
 # Factors extracted from Davenport 2014 formulae (1) and (4):
 X = 0.6890 / 1.600 + 0.3030 / 0.2783
 F, G, H, I = 1.941, -0.175 ,-2.246,-1.125
+
 
 def ed_a_from_fwhm_with_davenport(fwhm):
     """Integrate and sum up formulas (1) and (4)
@@ -36,15 +39,16 @@ def ed_a_from_fwhm_with_davenport(fwhm):
     -------
     float or array - ED/amplitude
     """
-    return 1 / fwhm**4 * (X * fwhm**5 + fwhm**4 + F / 2 * fwhm**3 + G / 3 * fwhm**2 + H / 4 * fwhm + I / 5)
+    return (1 / fwhm**4 * (X * fwhm**5 +
+                           fwhm**4 +
+                           F / 2 * fwhm**3 +
+                           G / 3 * fwhm**2 +
+                           H / 4 * fwhm +
+                           I / 5))
 
 
 if __name__ == "__main__":
 
-   
-    # get timestamp
-    today = date.today().strftime("%Y_%m_%d")
-    
     print("Calculating the decomposition of ED in a and FWHM:")
     print("-"*20)
     
@@ -59,14 +63,15 @@ if __name__ == "__main__":
     df = df[df.real=="1"]
     
     #fit log-log linear relation to ED and a
-    slope, intercept, r_value, p_value, std_err = stats.linregress(np.log10(df.ampl_rec.values),
-                                                               np.log10(df.ed_rec.values))
+    slope, intercept, r, p, s = stats.linregress(np.log10(df.ampl_rec.values),
+                                                 np.log10(df.ed_rec.values))
     
     # save result
     with open("results/a_from_ed.json", "w") as file:
         dic = { "slope" : slope, "intercept" : intercept }
         json.dump(dic, file)
-        print("ED-amplitude loglog-linear relation:\nslope: ", slope, "\nintercept: ", intercept)
+        print("ED-amplitude loglog-linear relation:\nslope: ",
+              slope, "\nintercept: ", intercept)
         print("-"*20)
         
         
@@ -75,12 +80,14 @@ if __name__ == "__main__":
     plt.figure(figsize=(7, 5.5))
     
     # plot data
-    plt.scatter(df.ampl_rec, df.ed_rec, marker="x",s=10, c="k",label="TESS UCD flares")
+    plt.scatter(df.ampl_rec, df.ed_rec, marker="x",
+                s=10, c="k",label="TESS UCD flares")
     
     # plot best-fit relationship
     x = np.linspace(-3,2,50)
     y = x * slope + intercept
-    plt.plot(10**x,10**y,c="r",label=fr"$\log_{{10}}ED(a)={slope:.2f}\cdot \log_{{10}}a + {intercept:.2f}$")
+    label = fr"$\log_{{10}}ED(a)={slope:.2f}\cdot \log_{{10}}a + {intercept:.2f}$"
+    plt.plot(10**x,10**y,c="r",label=label)
     
     # layout
     plt.xscale("log")
@@ -88,7 +95,7 @@ if __name__ == "__main__":
     plt.xlabel("rel. amplitude")
     plt.ylabel("ED [s]");
     plt.legend()
-    plt.savefig(f"plots/{today}_ED_over_a_in_TESS_UCD_flares.png", dpi=300)
+    plt.savefig(f"plots/ED_over_a_in_TESS_UCD_flares.png", dpi=300)
     # -------------------------------------------------------------
     
     # --------------------------------------------------------------

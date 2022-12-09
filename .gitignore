@@ -1,0 +1,4 @@
+plots/*
+.ipynb_checkpoints/*
+_pycache_/*
+*.pyc
