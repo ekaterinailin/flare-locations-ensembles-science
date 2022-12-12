@@ -13,27 +13,21 @@ PRODUCES THE CSV FILE FOR TABLE 2 IN THE PAPER.
 
 import numpy as np
 import pandas as pd
-from datetime import datetime
-import sys
+
 from scipy.odr import Model, RealData, ODR
 
-from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 plt.style.use('plots/paper.mplstyle')
-
-from flares.__init__ import (SCRIPT_NAME_GET_AGGREGATE_PARAMETERS,
-							 SCRIPT_NAME_MERGE_FILES,
-							)
 
 def latfit(b0,x):
     mu, sig = x
     a,b,c,d,e = b0
-    return  a *  mu**2 + b * mu + c * sig + d +  e * sig*mu 
+    return  a *  mu**2 + b * mu + d * sig +  e  + c * sig**2
 
 def latfit_err(b0err, x):
     mu, sig = x
     ar,br,cr,dr,er= b0err 
-    return np.sqrt( + (mu**2 * ar)**2 + (br * mu)**2 + (cr * sig)**2 + dr**2 + (sig* mu * er)**2)
+    return np.sqrt((mu**2 * ar)**2 + (mu * br)**2  + (sig * dr)**2 + er**2) + (sig**2 * cr)**2
 
 if __name__ == "__main__":
 
@@ -80,16 +74,16 @@ if __name__ == "__main__":
                        mono.std__of_wtd_stds.values])
         
         # y-error same as in binning in script 12_
-        sy = np.full_like(y, 3.)
+        sy = np.full_like(y, 1.)
         
         # setup data for ODR fit
         mydata = RealData(x, y, sx=sx, sy=sy)
 
         # setup ODR fit
         myodr = ODR(mydata, f, 
-                    beta0=[-1788.8766187 ,  1627.4705935 ,
-                           1562.95810747,    -1181.56885256,
-                           82.],
+                    beta0=[-5988. ,  5000.,
+                           -4000.,    -4000.,
+                           30.],
                     maxit=15000)
         
         # run ODR fit
@@ -129,8 +123,9 @@ if __name__ == "__main__":
             y = g.latitude.values
             
             # plot the fit
-            AX[ax].errorbar(y,latfit(myoutput.beta,x),xerr=2.5,yerr=latfit_err(myoutput.sd_beta,x),
-                         label=label,fmt="o",markersize=7, alpha=1,capsize=4)
+            AX[ax].errorbar(y,latfit(myoutput.beta,x),
+                            xerr=2.5,yerr=latfit_err(myoutput.sd_beta,x),
+                            label=label,fmt="o",markersize=7, alpha=1,capsize=4)
             
             # add 1-1 line
             AX[ax].plot([0,90],[0,90],c="k")

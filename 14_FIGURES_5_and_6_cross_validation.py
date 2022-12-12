@@ -14,27 +14,19 @@ PRODUCES FIGURES 5 AND 6 IN THE PAPER.
 
 import numpy as np
 import pandas as pd
-from datetime import datetime
-import sys
-from scipy.odr import Model, RealData, ODR
 
-from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 plt.style.use('plots/paper.mplstyle')
 
-from flares.__init__ import (SCRIPT_NAME_GET_AGGREGATE_PARAMETERS,
-							 SCRIPT_NAME_MERGE_FILES,
-							)
-
-def latfit(b0, x):
+def latfit(b0,x):
     mu, sig = x
     a,b,c,d,e = b0
-    return  a *  mu**2 + b * mu + c * sig + d +  e * sig*mu 
+    return  a *  mu**2 + b * mu + d * sig +  e  + c * sig**2
 
 def latfit_err(b0err, x):
     mu, sig = x
     ar,br,cr,dr,er= b0err 
-    return np.sqrt( + (mu**2 * ar)**2 + (br * mu)**2 + (cr * sig)**2 + dr**2 + (sig* mu * er)**2)
+    return np.sqrt((mu**2 * ar)**2 + (mu * br)**2  + (sig * dr)**2 + er**2) + (sig**2 * cr)**2
 
 if __name__ == "__main__":
     
@@ -48,11 +40,10 @@ if __name__ == "__main__":
     # read in fitting results from script 13_
     fitresd = pd.read_csv(f"results/fit_parameters.csv").set_index("Unnamed: 0")
     
-    print(fitresd.T.head())
     
     for case, d in fitresd.T.iterrows():
 
-        plt.figure(figsize=(7.5, 6.5))
+
         # pick the right setup
         print(case)
         color = d["color"]
@@ -80,7 +71,7 @@ if __name__ == "__main__":
             df["inferred_lat"] = latfit(params, x.values.T)
             df["inferred_lat_err"] = latfit_err(paramerrs, x.values.T)
 
-            # remove all failed inferences optionally
+#             # remove all failed inferences optionally
 #             df.loc[df["inferred_lat"] > 90.,"inferred_lat"] = np.nan
 #             df.loc[df["inferred_lat"] < 0.,"inferred_lat"] = np.nan
 #             df.loc[df["inferred_lat_err"] > 90.,"inferred_lat"] = np.nan
@@ -92,25 +83,42 @@ if __name__ == "__main__":
             truelats = np.concatenate((truelats, df.midlat2.values))
             meanwtd = np.concatenate((meanwtd, x["diff_tstart_mean_stepsize1"].values))
         
+        fig, axes =  plt.subplots(nrows=4, ncols=1, figsize=(7, 17.5), sharex=True, sharey=True)
         # group results by error size and color code
         colors = ['#17becf', '#8c564b', '#e377c2', 'k']
-        for err, c in list(zip([.25, .15, .10, 0.05], colors)):
+        wtds = [.2, .15, .10, 0.05, 0.01]
+        for wtdmax, wtdmin, c, ax in list(zip(wtds[:-1], wtds[1:], colors, axes)):
             
-            ins = meanwtd < err
+            # color code based on mean waiting time
+            ins = (meanwtd > wtdmin) & (meanwtd < wtdmax) & (truelats > 5) & (truelats < 85)
+            
             if truelats[ins].shape[0] > 0:
-                plt.scatter(x=truelats[ins], y=inflats[ins] - truelats[ins],
-                            s=34, c=c, label=fr"mean waiting time < {err} rot. per.")    
-        
-        # add 1-1 line
-        plt.plot([0,90], [0,0], c="grey")
-        
+                ax.errorbar(x=truelats[ins],
+                            y=inflats[ins] - truelats[ins],
+                            yerr = inflatserr[ins],
+                            linewidth=0.5, color="k",
+                            alpha=0.5, fmt=".", markersize=1,
+                            )
+                ax.scatter(x=truelats[ins],
+                           y=inflats[ins] - truelats[ins],
+                           zorder=10,
+                           s=34, c=c,
+                           label=fr"{wtdmin} < mean waiting time < {wtdmax} rot. per.")    
+            
+            ax.legend(frameon=False)
+    
         # layout
-        plt.xlabel("true latitude [deg]")
-        plt.ylabel("inferred latitude - true latitude [deg]")
-        plt.ylim(-90, 90)
-        plt.xlim(0, 90)
-        plt.legend(frameon=False)
-        
+        axes[-1].set_xlabel("true latitude [deg]")
+        for ax in axes:
+            
+            # add 0-line
+            ax.plot([0,90], [0,0], c="grey")
+            ax.set_ylabel("inferred lat. - true lat. [deg]")
+            ax.set_ylim(-90, 90)
+            ax.set_xlim(5, 85)
+            
+        plt.tight_layout()
+        plt.subplots_adjust(wspace=None, hspace=None)
         # save to file
-        stri = case.replace(" ","_").replace("-","_").replace(",","")
+        stri = case.replace(" ","_").replace("-","_").replace(",","").replace(".","")
         plt.savefig(f"plots/residuals_{stri}.png")

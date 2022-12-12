@@ -12,17 +12,11 @@ MIT License (2022)
 
 import numpy as np
 import pandas as pd
-from datetime import datetime
-import sys
-from scipy.odr import Model, RealData, ODR
+
 
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 plt.style.use('plots/paper.mplstyle')
-
-from flares.__init__ import (SCRIPT_NAME_GET_AGGREGATE_PARAMETERS,
-							 SCRIPT_NAME_MERGE_FILES,
-							)
 
 
 if __name__ == "__main__":
@@ -83,8 +77,8 @@ if __name__ == "__main__":
 
             # select only data with mid latitude above 1 and below 89 deg, that also
             # have std measured
-            _ = df[(df.midlat2 > 1.) &
-                   (df.midlat2 < 89.) &
+            _ = df[(df.midlat2 > 0.) &
+                   (df.midlat2 < 90.) &
                    (~df["diff_tstart_std_stepsize1"].isnull())]
 
             # sort by mid latitude
