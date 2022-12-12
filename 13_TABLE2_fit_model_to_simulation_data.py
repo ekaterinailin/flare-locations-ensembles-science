@@ -1,11 +1,14 @@
 """ 
 Python 3.8 -- UTF-8
 
-This script takes all simulations and calculates the mean
-and std values of all ensembles. Then
-
 Ekaterina Ilin 
 MIT License (2022)
+
+This script fits polynomials to the mean/std vs. latitude data
+and computes uncertainties for all fits.
+
+PRODUCES THE CSV FILE FOR TABLE 2 IN THE PAPER.
+
 """
 
 import numpy as np

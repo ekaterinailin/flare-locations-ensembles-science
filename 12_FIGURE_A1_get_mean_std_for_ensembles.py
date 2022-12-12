@@ -2,7 +2,9 @@
 Python 3.8 -- UTF-8
 
 This script takes all simulations and calculates the mean
-and std values of all ensembles. Then
+and std values of all ensembles.
+
+PRODUCES FIGURE A1 IN THE APPENDIX OF THE PAPER.
 
 Ekaterina Ilin 
 MIT License (2022)
@@ -22,15 +24,6 @@ from flares.__init__ import (SCRIPT_NAME_GET_AGGREGATE_PARAMETERS,
 							 SCRIPT_NAME_MERGE_FILES,
 							)
 
-def latfit(b0,x):
-    mu, sig = x
-    a,b,c,d,e = b0
-    return  a *  mu**2 + b * mu + c * sig + d +  e * sig*mu 
-
-def latfit_err(b0err, x):
-    mu, sig = x
-    ar,br,cr,dr,er= b0err 
-    return np.sqrt( + (mu**2 * ar)**2 + (br * mu)**2 + (cr * sig)**2 + dr**2 + (sig* mu * er)**2)
 
 if __name__ == "__main__":
 

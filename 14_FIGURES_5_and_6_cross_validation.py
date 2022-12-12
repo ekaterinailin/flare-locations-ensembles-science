@@ -1,11 +1,15 @@
 """ 
 Python 3.8 -- UTF-8
 
-This script takes all simulations and calculates the mean
-and std values of all ensembles. Then
-
 Ekaterina Ilin 
 MIT License (2022)
+
+This script uses the polynomial fits from script 13_ 
+(Table 2 in the paper) and applies it to the validation
+data set.
+
+PRODUCES FIGURES 5 AND 6 IN THE PAPER.
+
 """
 
 import numpy as np
@@ -44,75 +48,58 @@ if __name__ == "__main__":
     # read in fitting results from script 13_
     fitresd = pd.read_csv(f"results/fit_parameters.csv").set_index("Unnamed: 0")
     
-    print(fitresd.head())
+    print(fitresd.T.head())
     
-    for case, color in fitresd.T["color"][-2:-1].iteritems():
+    for case, d in fitresd.T.iterrows():
 
+        plt.figure(figsize=(7.5, 6.5))
         # pick the right setup
-        sets = res[res.color == color]
-        colors = ['#17becf', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22']
         print(case)
-        # for each case, create a table
-        tab = {}
-
-        for c, col in list(zip(colors,fitresd)):
-            
-            column = fitresd[col]
-            params = column[list("abcde")].values.astype(float)
-            paramerrs = column[["ar","br","cr","dr","er"]].values.astype(float)
-            inflats, truelats, inflatserr = [],[],[]
-            i=0
-
-            # for each case, each interpretation gets a subtable
-            tab[col] = {}
-
-            for s, row in sets.iterrows():
-
-                # for each interpretation each data set of the original will be added
-                string = f"results/{row.tstamp[17:]}_flares_validate_merged.csv"
-                df = pd.read_csv(string)#.iloc[::5]
-                x = df[["diff_tstart_mean_stepsize1","diff_tstart_std_stepsize1"]]/2./np.pi
-                df["inferred_lat"] = latfit(params,x.values.T)
-                df["inferred_lat_err"] = latfit_err(paramerrs,x.values.T)
-                df.loc[df["inferred_lat"]>90.,"inferred_lat"] = np.nan
-                df.loc[df["inferred_lat"]<0.,"inferred_lat"] = np.nan
-                df.loc[df["inferred_lat_err"]>90.,"inferred_lat"]=np.nan
-
-                # for each interpretation each data set of the original will be added
-
-                inflats = np.concatenate((inflats, df.inferred_lat.values))
-                inflatserr = np.concatenate((inflatserr, df.inferred_lat_err.values))
-                truelats = np.concatenate((truelats,df.midlat2.values))
-
-            tab[col]["truelat"] = truelats
-            tab[col]["inflat"] = inflats
-            tab[col]["inflat_err"] = inflatserr
-            
-        reform = {(outerKey, innerKey): values for outerKey, innerDict in 
-                  tab.items() for innerKey, values in innerDict.items()}
-
-        ff = pd.DataFrame(reform)
-
-        fff = ff.T.reset_index().dropna(subset=[1], axis=1)#.drop([3,4,5,7,8,10,11,13,14,6,9,12])
-        fff = fff.replace("1 spots, bi-hem.","1 spot")
-        print(fff.head(20))
+        color = d["color"]
+        sets = res[res.color == color]
         
-        # plot validation
-        colors = ['#8c564b', '#e377c2', '#7f7f7f', '#bcbd22']
-        plt.figure(figsize=(7.5,6.5))
-        ffff = fff.drop(["level_0","level_1"],axis=1)
-        truelat = ffff.iloc[9]#[::-2]
-        inflat = ffff.iloc[10]#[::-2]
-        inflaterr = ffff.iloc[11]#[::-2]
-
-        plt.errorbar(x=truelat, y=inflat - truelat, yerr=inflaterr, fmt="o",
-                     markersize=0, linewidth=0.5, capsize=2, c="grey", zorder=-10)
+        # get fit parameters
+        params = d[list("abcde")].values.astype(float)
+        paramerrs = d[["ar","br","cr","dr","er"]].values.astype(float)
         
-        for err,c in list(zip([60, 30, 20, 10],colors)):
-            ins = inflaterr < err
-            if truelat[ins].shape[0]>0:
-                plt.scatter(x=truelat[ins], y=inflat[ins] - truelat[ins],
-                            s=34, c=c, label=fr"error < ${err}^\circ$")    
+        
+        inflats, truelats, inflatserr, meanwtd = [],[],[],[]
+        
+        # each setup has a bunch of runs with different flare rates, 
+        # which we all want to incorporate
+        for s, row in sets.iterrows():
+
+            # get validation data set
+            string = f"results/{row.tstamp[17:]}_flares_validate_merged.csv"
+            df = pd.read_csv(string)
+            
+            # convert units from radian to rotation period
+            x = df[["diff_tstart_mean_stepsize1", "diff_tstart_std_stepsize1"]] / 2. /np.pi
+
+            # use parametrization to infer latitudes
+            df["inferred_lat"] = latfit(params, x.values.T)
+            df["inferred_lat_err"] = latfit_err(paramerrs, x.values.T)
+
+            # remove all failed inferences optionally
+#             df.loc[df["inferred_lat"] > 90.,"inferred_lat"] = np.nan
+#             df.loc[df["inferred_lat"] < 0.,"inferred_lat"] = np.nan
+#             df.loc[df["inferred_lat_err"] > 90.,"inferred_lat"] = np.nan
+
+            # concatenate all datasets
+
+            inflats = np.concatenate((inflats, df.inferred_lat.values))
+            inflatserr = np.concatenate((inflatserr, df.inferred_lat_err.values))
+            truelats = np.concatenate((truelats, df.midlat2.values))
+            meanwtd = np.concatenate((meanwtd, x["diff_tstart_mean_stepsize1"].values))
+        
+        # group results by error size and color code
+        colors = ['#17becf', '#8c564b', '#e377c2', 'k']
+        for err, c in list(zip([.25, .15, .10, 0.05], colors)):
+            
+            ins = meanwtd < err
+            if truelats[ins].shape[0] > 0:
+                plt.scatter(x=truelats[ins], y=inflats[ins] - truelats[ins],
+                            s=34, c=c, label=fr"mean waiting time < {err} rot. per.")    
         
         # add 1-1 line
         plt.plot([0,90], [0,0], c="grey")
