@@ -13,6 +13,8 @@ import pandas as pd
 from datetime import datetime
 import sys
 from scipy.odr import Model, RealData, ODR
+
+from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 plt.style.use('plots/paper.mplstyle')
 
@@ -124,25 +126,27 @@ if __name__ == "__main__":
 
         # ---------------------------------------------------------------------------
         # MAKE BIG PLOT
+        legend_handles = []
+        legend_labels = []
+        
         for N in Ns:
+            print(label)
             
             # make label
-            if "1 spot" in label:
+            if "1," in label:
                 labe = fr"$\theta={N:2d}^\circ$, 1 spot"
             else:
                 _ = label.split("hem")[0] + "hem."
+                _ = _[:3] + " spots" + _[3:]
                 labe = fr"$\theta={N:2d}^\circ$, {_}"
+                
+            print(labe)
             
-            # latitude 85 deg line
+            # latitude 80 deg line
             if N == 80:
                 
                 # in current subplot, and summary subplot
                 for a, l in list(zip([ax, axs[-1]], [labe, None])):
-                        
-#                     # plot mean and std in both
-#                     a.scatter(latlinesmean[N], latlinesstd[N],s=10,
-#                            linestyle="dashed", alpha=1,
-#                            linewidth=3, c=color, zorder=40, label=l)
                     
                     # in current subplot    
                     a.errorbar(latlinesmean[N],latlinesstd[N],
@@ -154,6 +158,9 @@ if __name__ == "__main__":
                 for a in axs[:-1]:
                     a.plot(latlinesmean[N],latlinesstd[N],linestyle="dashed", alpha=0.5,
                     linewidth=2, c="grey")
+                    
+                legend_handles.append(Line2D([0], [0], color=color, lw=4, linestyle="dashed"))
+                legend_labels.append(labe)
 
             # at mid latitude
             elif N==45:
@@ -173,17 +180,15 @@ if __name__ == "__main__":
                     a.plot(latlinesmean[N], latlinesstd[N], 
                            linestyle="dotted", alpha=0.5,
                            linewidth=1, c="grey")
+                    
+                legend_handles.append(Line2D([0], [0], color=color, lw=4, linestyle="dotted"))
+                legend_labels.append(labe)
             
             # 5 deg latitude line
             elif N == 10:
                 
                 # in current subplot, and summary subplot
                 for a, l in list(zip([ax, axs[-1]], [labe, None])):
-                
-#                     a.scatter(latlinesmean[N],latlinesstd[N],
-#                            linestyle="solid", alpha=1, s=10,
-#                            linewidth=3, c=color,zorder=40,
-#                            label=l)
                 
                     a.errorbar(latlinesmean[N],latlinesstd[N],
                                 xerr=std_latlinesmean[N], yerr=std_latlinesstd[N],
@@ -195,10 +200,15 @@ if __name__ == "__main__":
                     a.plot(latlinesmean[N],latlinesstd[N],
                            linestyle="solid", alpha=.5,
                            linewidth=1, c="grey")
+                    
+                legend_handles.append(Line2D([0], [0], color=color, lw=4, linestyle="solid"))
+                legend_labels.append(labe)
     
         ax.set_xlim(0.05, .2)
         ax.set_ylim(0.025, 0.2)
 
+        # add legend
+        ax.legend(legend_handles, legend_labels, loc=4, frameon=False)
 
     # add axes labels
     for i in [0,3]: 
