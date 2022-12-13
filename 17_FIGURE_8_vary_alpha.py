@@ -50,10 +50,11 @@ if __name__ == "__main__":
         # make label
         alpha = label.split("alpha$ = ")[1].split(", bi")[0]
         if alpha=="1.5-2.5":
-            alpha = 0.25
+            alpha = 1.
             c = "b"
         else:
             alpha= (float(alpha) / 2.5)**2
+            c = "r"
             
         l = label.split(", ")[0]
         
@@ -66,7 +67,7 @@ if __name__ == "__main__":
         binmids = (bins[1:] + bins[:-1]) / 2.
         histmeans, bins = np.histogram(means, bins=bins)
 
-        ax[0].plot(binmids, histmeans, c="r", alpha=alpha, label=l)
+        ax[0].plot(binmids, histmeans, c=c, alpha=alpha, label=l)
         ax[0].axvline(np.mean(means),c="k", linestyle="dashed", alpha=alpha)
         ax[0].axvspan(np.mean(means) - np.std(means),
                        np.mean(means) + np.std(means),
@@ -78,7 +79,7 @@ if __name__ == "__main__":
         binmids = (bins[1:] + bins[:-1]) / 2.
         histstds, bins = np.histogram(stds, bins=bins)
 
-        ax[1].plot(binmids, histstds, c="r", alpha=alpha, label=l)
+        ax[1].plot(binmids, histstds, c=c, alpha=alpha, label=l)
         ax[1].axvline(np.mean(stds),c="k", linestyle="dashed", alpha=alpha)
         ax[1].axvspan(np.mean(stds) - np.std(stds),
                        np.mean(stds) + np.std(stds),
@@ -88,7 +89,7 @@ if __name__ == "__main__":
     # layout
     for a in ax:
         a.set_ylabel("number of ensembles", fontsize=14)
-        a.legend(loc=1,fontsize=14, frameon=False)
+        a.legend(loc=1,fontsize=12, frameon=False)
         a.set_ylim(0,)
 
     ax[0].set_title(rf"1 spot, bi-hem.",fontsize=13)
