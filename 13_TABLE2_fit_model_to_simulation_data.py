@@ -22,12 +22,13 @@ plt.style.use('plots/paper.mplstyle')
 def latfit(b0,x):
     mu, sig = x
     a,b,c,d,e = b0
-    return  a *  mu**2 + b * mu + d * sig +  e  + c * sig**2
+    return  a *  mu**2 + b * mu + c * sig**2  + d * sig + e 
 
-def latfit_err(b0err, x):
-    mu, sig = x
-    ar,br,cr,dr,er= b0err 
-    return np.sqrt((mu**2 * ar)**2 + (mu * br)**2  + (sig * dr)**2 + er**2) + (sig**2 * cr)**2
+# def latfit_err(b0err, x):
+#     mu, sig = x
+#     ar,br,cr,dr,er= b0err 
+# #     return np.sqrt((mu**2 * ar)**2 + (mu * br)**2  + (sig * dr)**2 + er**2 + (sig**2 * cr)**2)
+#     return (mu**2 * ar) + (mu * br)  + (sig * dr) + er + (sig**2 * cr) + np.cov(x)
 
 if __name__ == "__main__":
 
@@ -47,14 +48,18 @@ if __name__ == "__main__":
     # init results
     fitres = {}
     
-    # loop through setups
-    for color in ms.c.unique():
+    # loop through group frames of same hemisphere, number of spots and color
+    for l, mono in res.groupby(["hem","nspots","color"]):
         
-        # pick setup
-        mono = ms[ms.c == color]
+        # get label
+        hem, nspots, color = l
         
         # make label
-        tt = f"{mono.nspots.iloc[0]} spots, {mono.hem.iloc[0]}"
+        tt = f"{nspots} spots, {hem}"
+        
+        dicspots = {"1-3":2, "1":1, "3-5":4}
+        dicthem = {"bi-hem.":2., "mono-hem.":1.}
+        print(hem)
         
         # setup result row
         fitres[tt]={}
@@ -62,19 +67,42 @@ if __name__ == "__main__":
         # init model
         f = Model(latfit)
         
-        # 2D x-data
-        x = np.array([mono.mean_of_wtd_means.values, 
-                      mono.mean_of_wtd_stds.values])
+        x1, x2, y = [], [], []
         
-        # y-data
-        y = mono.latitude.values
+        # read in simulated data
+        for _, d in mono.iterrows():
+            
+            
+            df = pd.read_csv(f"results/{nstamp}_{d.tstamp[17:]}_flares_train_merged.csv")
+
+            # select only data with mid latitude above 1 and below 89 deg, that also
+            # have std measured
+            _ = df[(df.midlat2 > 0.) &
+                   (df.midlat2 < 90.) &
+                   (~df["diff_tstart_std_stepsize1"].isnull())]
+
+            # sort by mid latitude
+            _ = _.sort_values(by="midlat2",ascending=True)
+            y_ = _.midlat2.values
+            
+            # normalize to rotation period as unit
+            x1_ = _["diff_tstart_mean_stepsize1"] / 2 / np.pi
+            x2_ = _["diff_tstart_std_stepsize1"] / 2. / np.pi
+            
+            x1 = np.concatenate((x1, x1_.values))
+            x2 = np.concatenate((x2, x2_.values))
+            y = np.concatenate((y, y_))
+        
+        
+        # 2D x-data
+        x = np.array([x1, x2])
         
         # x-error
-        sx = np.array([mono.std_of_wtd_means.values,
-                       mono.std__of_wtd_stds.values])
+        sx = np.array([np.full_like(y, x1/10./dicspots[nspots]),
+                       np.full_like(y,  2.5*x2/np.sqrt(dicspots[nspots]*dicthem[hem]))])
         
         # y-error same as in binning in script 12_
-        sy = np.full_like(y, 1.)
+        sy = np.full_like(y, 2.5)
         
         # setup data for ODR fit
         mydata = RealData(x, y, sx=sx, sy=sy)
@@ -101,52 +129,20 @@ if __name__ == "__main__":
         mono = mono.sort_values("minflares",ascending=True)
         
         # add results line
-        fitres[tt]=dict(zip(["color","a","b","c","d",
-                             "e","ar","br","cr","dr","er"],
-                            np.concatenate(([mono.c.iloc[0]],
-                                             myoutput.beta,myoutput.sd_beta))))
+        fitres[tt]=dict(zip(["color",
+                             "a","b","c","d","e",
+                             "ar","br","cr","dr","er"],
+                            np.concatenate(([mono.color.iloc[0]],
+                                             myoutput.beta,
+                                             myoutput.sd_beta))))
+        
+        # covariance matric out file
+        covmat = myoutput.cov_beta
+        stri = tt.replace(" ","_").replace("-","_").replace(",","").replace(".","")
+        covmat.tofile(f"results/{stri}_covmat.txt", sep=',')
+        
 
-        # ----------------------------------------------------------------------------
-        # PLOT FITTING RESULTS
-        
-        # setup axes
-        axes = [0,0,0,1,1,1,2,2]
-        fig, AX = plt.subplots(nrows=1, ncols=3, figsize=(14,5), sharey=True)
-        
-        # loops through results
-        for ax, (label, g) in list(zip(axes, mono.groupby(["minflares","maxflares"]))):
-            
-            # x-data
-            x = np.array([g.mean_of_wtd_means.values,
-                          g.mean_of_wtd_stds.values])
-            # y-data
-            y = g.latitude.values
-            
-            # plot the fit
-            AX[ax].errorbar(y,latfit(myoutput.beta,x),
-                            xerr=2.5,yerr=latfit_err(myoutput.sd_beta,x),
-                            label=label,fmt="o",markersize=7, alpha=1,capsize=4)
-            
-            # add 1-1 line
-            AX[ax].plot([0,90],[0,90],c="k")
-            
-            # layout
-            AX[ax].set_xlim(0,90)
-            AX[ax].set_ylim(-90,180)
-            AX[ax].set_xlabel("true latitude [deg]")
-            AX[ax].legend()
-            
-        # layout    
-        AX[0].set_ylabel("inferred latitude [deg]")
-        AX[1].set_title(f"{mono.nspots.iloc[0]} spots, {mono.hem.iloc[0]}",fontsize=20)
-        plt.tight_layout()
-        
-        # save to file
-        ps2 = f"plots/{mono.nspots.iloc[0]}_spots_{mono.hem.iloc[0]}_fit_5params"
-        print(f"Plotted to {ps2}.")
-        plt.savefig(ps2.replace("-","_").replace(".",""),dpi=300)
-        
-        
+
     # save fitting data
     fitresd = pd.DataFrame(fitres)
     print(fitresd.columns, fitresd.index)

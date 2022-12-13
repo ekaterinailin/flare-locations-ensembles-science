@@ -45,7 +45,7 @@ if __name__ == "__main__":
     # init dict
     nonlat = {}
     
-    # loop through group frames of same hemisphere, numver of spots and color
+    # loop through group frames of same hemisphere, number of spots and color
     for (l, g), ax in  list(zip(res.groupby(["hem","nspots","color"]), axs[:-1])):
         
         # get label

@@ -18,15 +18,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plt.style.use('plots/paper.mplstyle')
 
+
 def latfit(b0,x):
     mu, sig = x
     a,b,c,d,e = b0
-    return  a *  mu**2 + b * mu + d * sig +  e  + c * sig**2
+    return  a * mu**2 + b * mu  + c * sig**2  + d * sig +  e
+
 
 def latfit_err(b0err, x):
     mu, sig = x
     ar,br,cr,dr,er= b0err 
-    return np.sqrt((mu**2 * ar)**2 + (mu * br)**2  + (sig * dr)**2 + er**2) + (sig**2 * cr)**2
+    return np.sqrt((mu**2 * ar)**2 + (mu * br)**2  + (sig * dr)**2 + er**2 + (sig**2 * cr)**2)
+   
 
 if __name__ == "__main__":
     
@@ -46,6 +49,7 @@ if __name__ == "__main__":
 
         # pick the right setup
         print(case)
+        stri = case.replace(" ","_").replace("-","_").replace(",","").replace(".","")
         color = d["color"]
         sets = res[res.color == color]
         
@@ -65,21 +69,28 @@ if __name__ == "__main__":
             df = pd.read_csv(string)
             
             # convert units from radian to rotation period
-            x = df[["diff_tstart_mean_stepsize1", "diff_tstart_std_stepsize1"]] / 2. /np.pi
+            x = df[["diff_tstart_mean_stepsize1", "diff_tstart_std_stepsize1"]] / 2. / np.pi
 
             # use parametrization to infer latitudes
             df["inferred_lat"] = latfit(params, x.values.T)
-            df["inferred_lat_err"] = latfit_err(paramerrs, x.values.T)
 
-#             # remove all failed inferences optionally
+            # caclucate errors using covariance matrix
+            covmat = np.genfromtxt(f"results/{stri}_covmat.txt", delimiter=",").reshape((5,5))
+            
+            err = []
+            for ind, val in x.iterrows():
+                mu, sig = val.values
+                vec = np.array([mu**2, mu, sig**2, sig, 1.])
+                err.append(np.sqrt(np.matmul(vec.T, np.matmul(covmat, vec))))
+   
+            # remove all failed inferences optionally
 #             df.loc[df["inferred_lat"] > 90.,"inferred_lat"] = np.nan
 #             df.loc[df["inferred_lat"] < 0.,"inferred_lat"] = np.nan
 #             df.loc[df["inferred_lat_err"] > 90.,"inferred_lat"] = np.nan
 
             # concatenate all datasets
-
             inflats = np.concatenate((inflats, df.inferred_lat.values))
-            inflatserr = np.concatenate((inflatserr, df.inferred_lat_err.values))
+            inflatserr = np.concatenate((inflatserr, err))
             truelats = np.concatenate((truelats, df.midlat2.values))
             meanwtd = np.concatenate((meanwtd, x["diff_tstart_mean_stepsize1"].values))
         
@@ -117,8 +128,8 @@ if __name__ == "__main__":
             ax.set_ylim(-90, 90)
             ax.set_xlim(5, 85)
             
-        plt.tight_layout()
         plt.subplots_adjust(wspace=None, hspace=None)
+        plt.tight_layout()
+       
         # save to file
-        stri = case.replace(" ","_").replace("-","_").replace(",","").replace(".","")
         plt.savefig(f"plots/residuals_{stri}.png")
