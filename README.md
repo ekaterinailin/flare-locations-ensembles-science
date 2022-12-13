@@ -1,4 +1,17 @@
+# Flaring Latitudes in Ensembles of Low Mass Stars
+## Ilin et al. (in prep.)
 
+### Scripts that can be run prior to generating synthetic data at scale
+
+Scripts 01, 03, 05, 06 can be run prior to running simulations.
+
+Script 01 explores the night length distribution for different active latitudes at varying inclinations.
+
+Script 03 produces a **minimal example** of fleck usage with flares.
+
+Script 05 derives the empirical equivalent duration to amplitude to duration conversion based flaring ultracool dwarf systems observed with TESS.
+
+Script 06 produces model illustrations for the paper.
 
 ### How to generate synthetic training data and use them to find properties that predict active latitude
 
@@ -52,4 +65,17 @@ Output:
 If you are doing aggregate statistics for ensembles of light curves, take care not to split the training and validation data into too small chunks, in particular the validation set.  Divide `<total number of LCs> / <number of splits> / 200` to get the number of lc per ensemble. It should be at least 200 to effectively marginalize over inclinations, and get a decently narrow active latitude width.
 
 
+### Scripts that can be run after the synthetic data have been created and processed
 
+
+Scripts 13-18 can only be run after the synthetic data have been processed.
+
+Script 13 fits a polynomial expression to the data, and writes out best-fit parameters and covariance matrices to file.
+
+Script 14 plots the residuals of the fits done in Script 13 on a validation data set that was not used in 13.
+
+Script 15 just convert the fit parameters script to a tex document.
+
+Script 16 shows the results for varying active latitude width.
+
+Script 16 shows the results for varying power law exponent alpha.
