@@ -75,7 +75,6 @@ if __name__ == "__main__":
             for ind, val in x.iterrows():
                 mu, sig = val.values
                 vec = np.array([mu**2, mu, sig**2, sig, 1.])
-#                 err.append(np.sqrt(((vec*paramerrs)**2).sum()))
                 err.append(np.sqrt(np.matmul(vec.T, np.matmul(covmat, vec))))
    
             # remove all failed inferences optionally
