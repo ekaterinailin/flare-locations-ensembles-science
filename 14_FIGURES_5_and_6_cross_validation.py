@@ -21,14 +21,8 @@ plt.style.use('plots/paper.mplstyle')
 
 def latfit(b0,x):
     mu, sig = x
-    a,b,c,d,e = b0
+    a, b, c, d, e = b0
     return  a * mu**2 + b * mu  + c * sig**2  + d * sig +  e
-
-
-def latfit_err(b0err, x):
-    mu, sig = x
-    ar,br,cr,dr,er= b0err 
-    return np.sqrt((mu**2 * ar)**2 + (mu * br)**2  + (sig * dr)**2 + er**2 + (sig**2 * cr)**2)
    
 
 if __name__ == "__main__":
@@ -81,6 +75,7 @@ if __name__ == "__main__":
             for ind, val in x.iterrows():
                 mu, sig = val.values
                 vec = np.array([mu**2, mu, sig**2, sig, 1.])
+#                 err.append(np.sqrt(((vec*paramerrs)**2).sum()))
                 err.append(np.sqrt(np.matmul(vec.T, np.matmul(covmat, vec))))
    
             # remove all failed inferences optionally

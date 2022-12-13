@@ -93,6 +93,8 @@ if __name__ == "__main__":
         x = np.array([x1, x2])
         
         # x-errors guessed
+        # error on mean is 10% / number of spots
+        # error on std is 250% / sqrt(number of spots * number of hemispheres)
         sx = np.array([x1 / 10. / dicspots[nspots],
                        2.5 * x2 / np.sqrt(dicspots[nspots] * dicthem[hem])])
         
@@ -104,8 +106,8 @@ if __name__ == "__main__":
 
         # setup ODR fit
         myodr = ODR(mydata, f, 
-                    beta0=[-5988. ,  5000.,
-                           -4000.,    -4000.,
+                    beta0=[-5988., 5000.,
+                           -4000., -4000.,
                            30.],
                     maxit=15000)
         
