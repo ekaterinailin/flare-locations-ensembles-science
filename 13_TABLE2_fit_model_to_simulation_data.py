@@ -21,14 +21,9 @@ plt.style.use('plots/paper.mplstyle')
 
 def latfit(b0,x):
     mu, sig = x
-    a,b,c,d,e = b0
+    a, b, c, d, e = b0
     return  a *  mu**2 + b * mu + c * sig**2  + d * sig + e 
 
-# def latfit_err(b0err, x):
-#     mu, sig = x
-#     ar,br,cr,dr,er= b0err 
-# #     return np.sqrt((mu**2 * ar)**2 + (mu * br)**2  + (sig * dr)**2 + er**2 + (sig**2 * cr)**2)
-#     return (mu**2 * ar) + (mu * br)  + (sig * dr) + er + (sig**2 * cr) + np.cov(x)
 
 if __name__ == "__main__":
 
@@ -97,9 +92,9 @@ if __name__ == "__main__":
         # 2D x-data
         x = np.array([x1, x2])
         
-        # x-error
-        sx = np.array([np.full_like(y, x1/10./dicspots[nspots]),
-                       np.full_like(y,  2.5*x2/np.sqrt(dicspots[nspots]*dicthem[hem]))])
+        # x-errors guessed
+        sx = np.array([x1 / 10. / dicspots[nspots],
+                       2.5 * x2 / np.sqrt(dicspots[nspots] * dicthem[hem])])
         
         # y-error same as in binning in script 12_
         sy = np.full_like(y, 2.5)
@@ -137,9 +132,8 @@ if __name__ == "__main__":
                                              myoutput.sd_beta))))
         
         # covariance matric out file
-        covmat = myoutput.cov_beta
         stri = tt.replace(" ","_").replace("-","_").replace(",","").replace(".","")
-        covmat.tofile(f"results/{stri}_covmat.txt", sep=',')
+        myoutput.cov_beta.tofile(f"results/{stri}_covmat.txt", sep=',')
         
 
 
