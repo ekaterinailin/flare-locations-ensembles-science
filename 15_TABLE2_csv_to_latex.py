@@ -1,3 +1,15 @@
+""" 
+Python 3.8 -- UTF-8
+
+Ekaterina Ilin 
+MIT License (2022)
+
+This script converts fit_parameters.csv to fit_parameters.tex
+
+PRODUCES THE TEX FILE FOR TABLE 2 IN THE PAPER.
+
+"""
+
 import pandas as pd
 
 if __name__ == "__main__":
