@@ -2,6 +2,14 @@
 
 *Ilin et al. (in prep.)*
 
+The contents of this repository can be divided in three parts:
+
+- a preparatory part that can be run prior to producing synthetic flare light curves and waiting time distributions at scale,
+- instructions on how to produce synthetic data at scale
+- scripts that analyse and summarize the synthetic data
+
+Scripts that produce figures and tables to appear in Ilin et al. (in prep.) are noted in the name of the script.
+
 ## Scripts that can be run prior to generating synthetic data at scale
 
 Scripts 01, 03, 05, 06 can be run prior to running simulations.
@@ -73,3 +81,4 @@ Scripts 13-18 can only be run after the synthetic data have been processed.
 - Script 15 just convert the fit parameters .csv table to a tex document.
 - Script 16 shows the results for varying active latitude width.
 - Script 17 shows the results for varying power law exponent alpha.
+- Script 18 produces a figure that shows the parameter range covered by the mean and standard deviation of waiting time distributions.
