@@ -52,9 +52,13 @@ if __name__ == "__main__":
         if alpha=="1.5-2.5":
             alpha = 1.
             c = "b"
+            fc = "b"
+            dashc = "b"
         else:
             alpha= (float(alpha) / 2.5)**2
             c = "r"
+            fc = "grey"
+            dashc = "k"
             
         l = label.split(", ")[0]
         
@@ -68,10 +72,10 @@ if __name__ == "__main__":
         histmeans, bins = np.histogram(means, bins=bins)
 
         ax[0].plot(binmids, histmeans, c=c, alpha=alpha, label=l)
-        ax[0].axvline(np.mean(means),c="k", linestyle="dashed", alpha=alpha)
+        ax[0].axvline(np.mean(means),c=dashc, linestyle="dashed", alpha=alpha)
         ax[0].axvspan(np.mean(means) - np.std(means),
                        np.mean(means) + np.std(means),
-                       facecolor="grey", alpha=alpha/2)    
+                       facecolor=fc, alpha=alpha/2)    
         ax[0].set_xlim(binmids[0],binmids[-1])
 
         # stds histogram
@@ -80,10 +84,10 @@ if __name__ == "__main__":
         histstds, bins = np.histogram(stds, bins=bins)
 
         ax[1].plot(binmids, histstds, c=c, alpha=alpha, label=l)
-        ax[1].axvline(np.mean(stds),c="k", linestyle="dashed", alpha=alpha)
+        ax[1].axvline(np.mean(stds),c=dashc, linestyle="dashed", alpha=alpha)
         ax[1].axvspan(np.mean(stds) - np.std(stds),
                        np.mean(stds) + np.std(stds),
-                       facecolor="grey", alpha=alpha/2)
+                       facecolor=fc, alpha=alpha/2)
         ax[1].set_xlim(binmids[0],binmids[-1])
 
     # layout

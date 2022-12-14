@@ -8,6 +8,7 @@ This script fits polynomials to the mean/std vs. latitude data
 and computes uncertainties for all fits.
 
 PRODUCES THE CSV FILE FOR TABLE 2 IN THE PAPER.
+PRODUCES COVARIANCE MATRICES.
 
 """
 

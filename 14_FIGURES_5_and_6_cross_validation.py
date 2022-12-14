@@ -98,18 +98,26 @@ if __name__ == "__main__":
             ins = (meanwtd > wtdmin) & (meanwtd < wtdmax) & (truelats > 5) & (truelats < 85)
             
             if truelats[ins].shape[0] > 0:
-                ax.errorbar(x=truelats[ins],
-                            y=inflats[ins] - truelats[ins],
-                            yerr = inflatserr[ins],
-                            linewidth=0.5, color="k",
-                            alpha=0.5, fmt=".", markersize=1,
-                            )
+#                 ax.errorbar(x=truelats[ins],
+#                             y=inflats[ins] - truelats[ins],
+#                             yerr = inflatserr[ins],
+#                             linewidth=0.5, color="k",
+#                             alpha=0.5, fmt=".", markersize=1,
+#                             )
+
+
+                std = np.std(inflats[ins] - truelats[ins])
+                ax.errorbar(15, -55, yerr=std, capsize=4, color="grey", linewidth=2.5)
+        
+        
                 ax.scatter(x=truelats[ins],
                            y=inflats[ins] - truelats[ins],
                            zorder=10,
                            s=34, c=c,
                            label=fr"{wtdmin} < mean waiting time < {wtdmax} rot. per.")    
-            
+                
+                
+                
             ax.legend(frameon=False)
     
         # layout
