@@ -70,7 +70,7 @@ If you are doing aggregate statistics for ensembles of light curves, take care n
 
 Scripts 13-18 can only be run after the synthetic data have been processed.
 
-Script 13 fits a polynomial expression to the data, and writes out best-fit parameters and covariance matrices to file.
+Script 13 fits a polynomial expression to the data, and writes out best-fit parameters and **covariance matrices** to the ``results/`` folder.
 
 Script 14 plots the residuals of the fits done in Script 13 on a validation data set that was not used in 13.
 
