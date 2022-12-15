@@ -18,7 +18,7 @@ if __name__ == "__main__":
     df = pd.read_csv('results/fit_parameters.csv')
 
     # give errors optionally
-    with_errors = False
+    with_errors = True
     
     # remodel table
     df = df.drop(0,axis=0).rename(index=str,columns={"Unnamed: 0":" "})

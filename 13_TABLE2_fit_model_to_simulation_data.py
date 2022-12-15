@@ -94,10 +94,8 @@ if __name__ == "__main__":
         x = np.array([x1, x2])
         
         # x-errors guessed
-        # error on mean is 10% / number of spots
-        # error on std is 250% / sqrt(number of spots * number of hemispheres)
-        sx = np.array([x1 / 10. / dicspots[nspots],
-                       2.5 * x2 / np.sqrt(dicspots[nspots] * dicthem[hem])])
+        # error on mean and std is numerically small
+        sx = np.array([1e-7, 1e-7])
         
         # y-error same as in binning in script 12_
         sy = np.full_like(y, 2.5)
@@ -132,12 +130,7 @@ if __name__ == "__main__":
                              "ar","br","cr","dr","er"],
                             np.concatenate(([mono.color.iloc[0]],
                                              myoutput.beta,
-                                             myoutput.sd_beta))))
-        
-        # covariance matric out file
-        stri = tt.replace(" ","_").replace("-","_").replace(",","").replace(".","")
-        myoutput.cov_beta.tofile(f"results/{stri}_covmat.txt", sep=',')
-        
+                                             myoutput.sd_beta)))) 
 
 
     # save fitting data
