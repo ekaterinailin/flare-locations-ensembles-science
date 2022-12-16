@@ -50,8 +50,8 @@ def test_get_flares():
 
     # ----------------- RUN TESTS -------------------
 
-    # 12 general flare and lc properties and 4 spot specific ones
-    assert len(flares.columns) == 4 * n_spots_max + 12
+    # 13 general flare and lc properties and 4 spot specific ones
+    assert len(flares.columns) == 4 * n_spots_max + 13
 
     # some properties should be the same for all flares
     for col in ["midlat_deg", "inclination_deg", "n_spots", "starid"]:
@@ -60,12 +60,12 @@ def test_get_flares():
     # check spot specific properties
     for i in range(n_spots_max):
         # alpha should stay within margins
-        assert (flares[f"alpha_{i+1}"].values < -alpha_min).all()
-        assert (flares[f"alpha_{i+1}"].values > -alpha_max).all()
+        assert (flares[f"alpha_{i+1}"].values <= -alpha_min).all()
+        assert (flares[f"alpha_{i+1}"].values >= -alpha_max).all()
 
         # beta should stay within margins
-        assert (flares[f"beta_{i+1}"].values > beta_min).all()
-        assert (flares[f"beta_{i+1}"].values < beta_max).all()
+        assert (flares[f"beta_{i+1}"].values >= beta_min).all()
+        assert (flares[f"beta_{i+1}"].values <= beta_max).all()
 
         # lon should stay within margins
         assert (flares[f"lon_deg_{i+1}"].values > 0).all()

@@ -17,6 +17,7 @@ def test_calibratable_diff_stats():
                        "col0":np.random.choice(np.arange(10), size=N),
                        "col1":np.random.normal(30, 1, N),
                        "midlat_deg":np.random.choice(np.linspace(0,90,10), size=N),
+                       "ed_rec":np.random.normal(30, 1, N),
                        "tstart":np.random.rand(N) * 100})
 
     # sort times
@@ -26,7 +27,7 @@ def test_calibratable_diff_stats():
     group = df.groupby(["col0","midlat_deg"])
 
     # apply the function
-    dd, bins = calibratable_diff_stats(group, "tstart", 1, size=size)
+    dd, bins = calibratable_diff_stats(df, group, "tstart", 1, size=size)
 
     # assert shape comes out  correct
     assert dd.shape == (5,3)
@@ -42,7 +43,7 @@ def test_calibratable_diff_stats():
 
     # apply the function with stepsize 2
     group = df.groupby(["col0","midlat_deg"])
-    dd, bins = calibratable_diff_stats(group, "tstart", 2, size=size)
+    dd, bins = calibratable_diff_stats(df, group, "tstart", 2, size=size)
 
     # rerun the checks from before 
     # assert shape comes out  correct

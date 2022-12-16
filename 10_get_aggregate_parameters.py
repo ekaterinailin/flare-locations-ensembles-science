@@ -27,16 +27,6 @@ if __name__ == "__main__":
     # calculate aggregate statistics with different lags, i.e. step sizes
     print("Do calibratable stats step size 1.")
     res, bins = calibratable_diff_stats(dfsort, group, 'tstart', 1, size=size)
-#     print(res.head())
-#     print("Do calibratable stats step size 2.")
-#     res = pd.concat([res, calibratable_diff_stats(dfsort, group, 'tstart', 2, size=size)[0]],
-#                     axis=0)
-
-#     print("Do calibratable stats step size 3.")
-#     res = pd.concat([res, calibratable_diff_stats(dfsort, group, 'tstart', 3, size=size)[0]],
-#                     axis=0)    
-    
-#     res = res.reset_index()
 
     # calculate mid-/min-/max-/width of latitudes of ensembles of lcs
     print(res.head(), res.index)
