@@ -85,6 +85,7 @@ def calibratable_diff_stats(df, group, col, steps, size=200):
     # calculate waiting times
     se = group.apply(lambda x: x[col].diff(periods=steps)).reset_index()
         
+   
     # delete superfluos index
     del se["level_2"]
     se["ed_rec"] = df["ed_rec"]
@@ -92,9 +93,7 @@ def calibratable_diff_stats(df, group, col, steps, size=200):
 
     av_rec_num_flares = int(np.rint(se.groupby("midlat_deg").ed_rec.count().mean()))
     
-#     se = se.dropna()
-    print(se)
-    
+    print(se.shape[0], size, av_rec_num_flares)
     # cut dataframe into groups with similar mid latitude but random inclinations
     cut, bins = pd.cut(se["midlat_deg"],
                        np.linspace(se["midlat_deg"].min(),
@@ -105,7 +104,7 @@ def calibratable_diff_stats(df, group, col, steps, size=200):
     agg = se.groupby(cut)
     
     k = agg.apply(lambda x: x[col].median())
-    print(k)
+    
     s = agg.apply(lambda x: x[col].mean())
 
     sm = agg.apply(lambda x: x[col].std())
