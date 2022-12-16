@@ -1,8 +1,5 @@
-import pytest
 import numpy as np
 import pandas as pd
-
-import os
 
 from ..stats import calibratable_diff_stats
 
@@ -11,7 +8,7 @@ def test_calibratable_diff_stats():
     
     # generate fake large dataset
     N = 800 # total number of flares we deal with
-    size = 4 # number of ensembles to generate
+    size = 4 # number of ensembles to split the data into
     df = pd.DataFrame({"COL":np.random.choice(np.arange(10), size=N),
                        "col4":np.random.choice(np.arange(100), size=N),
                        "col0":np.random.choice(np.arange(10), size=N),
@@ -26,10 +23,9 @@ def test_calibratable_diff_stats():
     # group by two columns
     group = df.groupby(["col0","midlat_deg"])
 
-    print(group.count())
     # apply the function
     dd, bins = calibratable_diff_stats(df, group, "tstart", 1, size=size)
-    print(dd)
+   
     # assert shape comes out  correct
     assert dd.shape == (4,5)
     
