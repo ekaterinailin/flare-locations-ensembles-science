@@ -80,6 +80,10 @@ if __name__ == "__main__":
     plt.legend(handles, labels, loc=4, frameon=False, fontsize=11)
     plt.tight_layout()
 
+    # labels
+    plt.xlabel(r"mean waiting time $\mu$")
+    plt.ylabel(r"standard deviation of waiting time $\sigma$")
+
     # print to file
     path = "plots/parameter_space.png"
     print("Save parameters space figure to: ", path)

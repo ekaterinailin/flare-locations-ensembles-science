@@ -69,13 +69,14 @@ if __name__ == "__main__":
             df["inferred_lat"] = latfit(params, x.values.T)
 
             # caclucate errors using covariance matrix
-            covmat = np.genfromtxt(f"results/{stri}_covmat.txt", delimiter=",").reshape((5,5))
+            # covmat = np.genfromtxt(f"results/{stri}_covmat.txt", delimiter=",").reshape((5,5))
             
             err = []
             for ind, val in x.iterrows():
                 mu, sig = val.values
                 vec = np.array([mu**2, mu, sig**2, sig, 1.])
-                err.append(np.sqrt(np.matmul(vec.T, np.matmul(covmat, vec))))
+                # err.append(np.sqrt(np.matmul(vec.T, np.matmul(covmat, vec))))
+                
    
             # remove all failed inferences optionally
 #             df.loc[df["inferred_lat"] > 90.,"inferred_lat"] = np.nan
@@ -84,7 +85,7 @@ if __name__ == "__main__":
 
             # concatenate all datasets
             inflats = np.concatenate((inflats, df.inferred_lat.values))
-            inflatserr = np.concatenate((inflatserr, err))
+            # inflatserr = np.concatenate((inflatserr, err))
             truelats = np.concatenate((truelats, df.midlat2.values))
             meanwtd = np.concatenate((meanwtd, x["diff_tstart_mean_stepsize1"].values))
         
@@ -107,7 +108,9 @@ if __name__ == "__main__":
 
 
                 std = np.std(inflats[ins] - truelats[ins])
-                ax.errorbar(15, -55, yerr=std, capsize=4, color="grey", linewidth=2.5)
+                ax.errorbar(15, 0, yerr=std, capsize=4, color="grey", linewidth=4,
+                            capthick=4, zorder=10, alpha=1)
+                ax.text(15, -std-3, f"{std:.0f} deg", ha="center", va="center", fontsize=15)
         
         
                 ax.scatter(x=truelats[ins],
@@ -127,11 +130,11 @@ if __name__ == "__main__":
             # add 0-line
             ax.plot([0,90], [0,0], c="grey")
             ax.set_ylabel("inferred lat. - true lat. [deg]")
-            ax.set_ylim(-90, 90)
+            ax.set_ylim(-40, 40)
             ax.set_xlim(5, 85)
             
         plt.subplots_adjust(wspace=None, hspace=None)
         plt.tight_layout()
        
         # save to file
-        plt.savefig(f"plots/residuals_{stri}.png")
+        plt.savefig(f"plots/residuals_{stri}_alt.png")

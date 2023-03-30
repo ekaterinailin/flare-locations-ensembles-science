@@ -16,8 +16,11 @@ import pandas as pd
 import numpy as np
 from astropy.io import fits
 
+import warnings
+warnings.filterwarnings('ignore')
 
-def tex_one_err(val, err, r=3):
+
+def tex_one_err(val, err, r=2):
     """Convert a value and one error into a LaTeX string.
 
     Parameters
@@ -82,7 +85,7 @@ def get_mean_std(df, min_flares=5, max_flares=30):
 
             # add the last value, which is the difference between the last
             # and the first flare
-            agg = agg.append((1. - g.rot_phase.max() - g.rot_phase.min())
+            agg = pd.concat([agg, pd.Series(1. - g.rot_phase.max() - g.rot_phase.min())])
             
             # append the individual star's mean and std to the lists
             means.append(agg.mean())
@@ -167,45 +170,39 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------
     # FORMAT THE TABLE FOR LATEX
 
-    printdf = resdf[["min_rot", "max_rot", "mean", 
-                     "mean_err", "std", "std_err", 
-                    "n_stars", "n_flares"]]
-
-    printdf[r"$\mu$"] = printdf.apply(lambda x: tex_one_err(x["mean"],
-                                                            x["mean_err"]), 
-                                                            axis=1)
-    printdf[r"$\sigma$"] = printdf.apply(lambda x: tex_one_err(x["std"],
-                                                               x["std_err"]),
-                                                               axis=1)
-
-    for col in ["mean", "mean_err", "std", "std_err"]:
-        printdf = printdf.drop(col, axis=1)
-
-    printdf[r"$n_{*}$"] = printdf.n_stars.astype(int)
-    printdf[r"$n_{flare}$"] = printdf.n_flares.astype(int)
-
-    for col in ["n_stars", "n_flares"]:
-        printdf = printdf.drop(col, axis=1)
-
-    printdf[r"$P_{min}$ [d]"] = printdf.min_rot.round(2)
-    printdf[r"$P_{max}$ [d]"] = printdf.max_rot.round(2)
-
-    for col in ["min_rot", "max_rot"]:
-        printdf = printdf.drop(col, axis=1)
+    # printdf = resdf[["min_rot", "max_rot", "mean", "std",
+    #                 "n_stars", "n_flares"]]
+    
+    # printdf.rename(columns={"mean":"$\mu$", "std":"$\sigma$"}, inplace=True)
 
 
-    # ----------------------------------------------------------------------
-    # MAKE THE LATEX TABLE
+    # for col in ["mean", "mean_err", "std", "std_err"]:
+    #     printdf = printdf.drop(col, axis=1)
 
-    string = printdf.to_latex(index=False, escape=False)
-    string = string.replace("midrule","hline")
-    string = string.replace("toprule","hline")
-    string = string.replace("bottomrule","hline")
-    string = string.replace("llrrrr","llllll")
+    # printdf[r"$n_{*}$"] = printdf.n_stars.astype(int)
+    # printdf[r"$n_{f}$"] = printdf.n_flares.astype(int)
 
-    # ----------------------------------------------------------------------
-    # WRITE THE LATEX TABLE TO FILE
+    # for col in ["n_stars", "n_flares"]:
+    #     printdf = printdf.drop(col, axis=1)
 
-    with open("results/okamoto2021_table.tex", "w") as f:
-        f.write(string)
+    # printdf[r"$P_{min}$ [d]"] = printdf.min_rot.round(2)
+    # printdf[r"$P_{max}$ [d]"] = printdf.max_rot.round(2)
+
+    # for col in ["min_rot", "max_rot"]:
+    #     printdf = printdf.drop(col, axis=1)
+
+    # # ----------------------------------------------------------------------
+    # # MAKE THE LATEX TABLE
+
+    # string = printdf.to_latex(index=False, escape=False)
+    # string = string.replace("midrule","hline")
+    # string = string.replace("toprule","hline")
+    # string = string.replace("bottomrule","hline")
+    # string = string.replace("llrrrr","llllll")
+
+    # # ----------------------------------------------------------------------
+    # # WRITE THE LATEX TABLE TO FILE
+
+    # with open("results/okamoto2021_table.tex", "w") as f:
+    #     f.write(string)
 
