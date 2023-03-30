@@ -67,11 +67,11 @@ def get_mean_std(df, min_flares=5, max_flares=30):
 
     """
     # initialize the lists
-    means = []
-    stds = []
+    dat = []
 
     # set counter for total number of flares
     total_flares = 0
+    total_stars = 0
 
     # loop over the stars
     for kic, g in df.sort_values(by="Date").groupby("KIC"):
@@ -88,15 +88,16 @@ def get_mean_std(df, min_flares=5, max_flares=30):
             agg = pd.concat([agg, pd.Series(1. - g.rot_phase.max() - g.rot_phase.min())])
             
             # append the individual star's mean and std to the lists
-            means.append(agg.mean())
-            stds.append(agg.std())
+            dat.append(agg.values)
 
             # add the number of flares to the counter
             total_flares += g.shape[0]
+            total_stars += 1
+    
+    # flatten dat
+    dat = np.concatenate(dat)
 
-
-    return (np.nanmean(means), np.nanstd(means), np.nanmean(stds),
-            np.nanstd(stds), len(means), total_flares)
+    return (np.nanmean(dat), np.nanstd(dat), total_stars, total_flares)
 
 
 
@@ -159,50 +160,10 @@ if __name__ == "__main__":
     resdf = pd.DataFrame(res).T.rename(columns={0:"min_flares", 1:"max_flares", 
                                         2:"min_rot", 3:"max_rot", 
                                         4:"max_rot_err", 5:"mean", 
-                                        6:"mean_err", 7:"std", 8:"std_err",
-                                        9:"n_stars", 10:"n_flares"})
+                                        6:"std", 7:"n_stars", 8:"n_flares"})
 
 
     # write to csv
     resdf.to_csv("results/okamoto2021_table.csv", index_label="sample_ID")
 
-
-    # ----------------------------------------------------------------------
-    # FORMAT THE TABLE FOR LATEX
-
-    # printdf = resdf[["min_rot", "max_rot", "mean", "std",
-    #                 "n_stars", "n_flares"]]
-    
-    # printdf.rename(columns={"mean":"$\mu$", "std":"$\sigma$"}, inplace=True)
-
-
-    # for col in ["mean", "mean_err", "std", "std_err"]:
-    #     printdf = printdf.drop(col, axis=1)
-
-    # printdf[r"$n_{*}$"] = printdf.n_stars.astype(int)
-    # printdf[r"$n_{f}$"] = printdf.n_flares.astype(int)
-
-    # for col in ["n_stars", "n_flares"]:
-    #     printdf = printdf.drop(col, axis=1)
-
-    # printdf[r"$P_{min}$ [d]"] = printdf.min_rot.round(2)
-    # printdf[r"$P_{max}$ [d]"] = printdf.max_rot.round(2)
-
-    # for col in ["min_rot", "max_rot"]:
-    #     printdf = printdf.drop(col, axis=1)
-
-    # # ----------------------------------------------------------------------
-    # # MAKE THE LATEX TABLE
-
-    # string = printdf.to_latex(index=False, escape=False)
-    # string = string.replace("midrule","hline")
-    # string = string.replace("toprule","hline")
-    # string = string.replace("bottomrule","hline")
-    # string = string.replace("llrrrr","llllll")
-
-    # # ----------------------------------------------------------------------
-    # # WRITE THE LATEX TABLE TO FILE
-
-    # with open("results/okamoto2021_table.tex", "w") as f:
-    #     f.write(string)
 
