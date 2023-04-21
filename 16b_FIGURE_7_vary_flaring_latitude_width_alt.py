@@ -84,6 +84,10 @@ if __name__ == "__main__":
         ax[1].set_xlabel(r"$\Delta\theta$ [deg]")
         ax[1].set_ylabel(r"$\sigma$ [rot. per.]")
     
+    # on both x-axes, replace with 1.5, 2.0, and 2.5 ticks and labels
+    for a in ax:
+        a.set_xticks([5, 10, 20, 40])
+        a.set_xticklabels([r"5", r"10", r"20", r"40"])
 
     ax[0].set_title(rf"1-3 spots, mono-hem.",fontsize=15)
     plt.tight_layout()
