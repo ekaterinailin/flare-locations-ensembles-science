@@ -14,10 +14,11 @@ and flares in each subsample, and the range of rotation periods
 
 import pandas as pd
 import numpy as np
-from astropy.io import fits
 
 import warnings
 warnings.filterwarnings('ignore')
+
+from astropy.table import Table
 
 
 def tex_one_err(val, err, r=2):
@@ -75,7 +76,7 @@ def get_mean_std(df, min_flares=5, max_flares=30):
 
     # loop over the stars
     for kic, g in df.sort_values(by="Date").groupby("KIC"):
-        
+       
         # between 5 and 30 flares per default
         if (g.shape[0] <= max_flares) & (g.shape[0] >= min_flares):
 
@@ -107,21 +108,17 @@ if __name__ == "__main__":
     # READ THE DATA
 
     # read in fits file
-    hdu = fits.open('data/okamoto2021.fit')
+    tab = Table.read('data/okamoto2021.fit', format='fits')
 
-    recar = hdu[1].data
-    # convert recarray to dataframe
-    df = pd.DataFrame(recar)
-    for col in df.columns:
-        # convert bin-endian to little-endian
-        df[col] = df[col].values.byteswap().newbyteorder()
+    # convert table to dataframe
+    df = tab.to_pandas()
+
 
     # ----------------------------------------------------------------------
     # CALCULATE THE ROTATIONAL PHASE
 
     # calculate the rotational phase of the flares
     df["rot_phase"] = df.Date % df.Prot / df.Prot
-
 
     # ----------------------------------------------------------------------
     # CALCULATE THE MEAN AND STD OF THE WAITING TIME DISTRIBUTION
@@ -152,6 +149,7 @@ if __name__ == "__main__":
     min_rot = fast.Prot.min()
     max_rot = fast.Prot.max()
     res["geq10_slow"] = [5, 30, min_rot, max_rot, 0.05, *get_mean_std(fast)]
+ 
 
     # ----------------------------------------------------------------------
     # WRITE THE TABLE TO FILE
