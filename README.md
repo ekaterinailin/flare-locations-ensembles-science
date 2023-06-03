@@ -82,8 +82,8 @@ Scripts 13-18 can only be run after the synthetic data have been processed.
 - Script 13 fits a polynomial expression to the data, and writes out best-fit parameters and **covariance matrices** to the ``results/`` folder.
 - Script 14 plots the residuals of the fits done in Script 13 on a validation data set that was not used in 13.
 - Script 15 just convert the fit parameters .csv table to a LaTeX document (Table 2).
-- Script 16 shows the results for varying active latitude width.
-- Script 17 shows the results for varying power law exponent alpha.
+- Script 16 shows the results for varying active latitude width. 16b is the version of the figure that appears in the paper.
+- Script 17 shows the results for varying power law exponent alpha. 17b is the version of the figure that appears in the paper.
 - Script 18 produces a figure that shows the parameter range covered by the mean and standard deviation of waiting time distributions.
 - Script 19 produces Table 3 in the paper
 - Script 20 produces Figure 9 that illustrates the flaring latitudes derived from the G dwarf flare sample in [Okamoto et al. (2021)](https://ui.adsabs.harvard.edu/abs/2021ApJ...906...72O/abstract), and convert Table 3 to LaTeX.
