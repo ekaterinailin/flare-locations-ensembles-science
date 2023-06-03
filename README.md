@@ -1,6 +1,6 @@
 # Flaring Latitudes in Ensembles of Low Mass Stars
 
-*Ilin et al. (in prep.)*
+*Ilin et al. (accepted to MNRAS)*
 
 The contents of this repository can be divided in three parts:
 
@@ -8,7 +8,9 @@ The contents of this repository can be divided in three parts:
 - instructions on how to produce synthetic data at scale
 - scripts that analyse and summarize the synthetic data
 
-Scripts that produce figures and tables to appear in Ilin et al. (in prep.) are noted in the name of the script.
+Scripts that produce figures and tables to appear in Ilin et al. (2023) are noted in the name of the script.
+
+**If you just want the data: Simulation outputs, as well as Tables 2 and 3 can be found on [Zenodo](https://zenodo.org/record/7996929).**
 
 ## Scripts that can be run prior to generating synthetic data at scale
 
@@ -68,17 +70,22 @@ Output:
 - `11_applyscript_<timestamp2>_<timestamp1>_flares_validate.sh`
 - `12_merge_<timestamp2>_<timestamp1>_flares_validate.sh`
 
-If you are doing aggregate statistics for ensembles of light curves, take care not to split the training and validation data into too small chunks, in particular the validation set.  Divide `<total number of LCs> / <number of splits> / 200` to get the number of lc per ensemble. It should be at least 200 to effectively marginalize over inclinations, and get a decently narrow active latitude width.
+If you are doing aggregate statistics for ensembles of light curves, take care not to split the training and validation data into too small chunks, in particular the validation set.  Divide `<total number of LCs> / <number of splits> / 200` to get the number of lc per ensemble. It should be at least 200 to effectively marginalize over inclinations, and get a decently narrow active latitude width. 
+
+In the paper, we ran theses scripts for a number of different configurations (number of active regions, flare rates, active latitude widths). **You can find the outputs from the above procedure on [Zenodo](https://zenodo.org/record/7996929).**
 
 
 ## Scripts that can be run after the synthetic data have been created and processed
-
 
 Scripts 13-18 can only be run after the synthetic data have been processed.
 
 - Script 13 fits a polynomial expression to the data, and writes out best-fit parameters and **covariance matrices** to the ``results/`` folder.
 - Script 14 plots the residuals of the fits done in Script 13 on a validation data set that was not used in 13.
-- Script 15 just convert the fit parameters .csv table to a tex document.
+- Script 15 just convert the fit parameters .csv table to a LaTeX document (Table 2).
 - Script 16 shows the results for varying active latitude width.
 - Script 17 shows the results for varying power law exponent alpha.
 - Script 18 produces a figure that shows the parameter range covered by the mean and standard deviation of waiting time distributions.
+- Script 19 produces Table 3 in the paper
+- Script 20 produces Figure 9 that illustrates the flaring latitudes derived from the G dwarf flare sample in [Okamoto et al. (2021)](https://ui.adsabs.harvard.edu/abs/2021ApJ...906...72O/abstract), and convert Table 3 to LaTeX.
+
+**Machine readable versions of Tables 2 and 3 can be found on [Zenodo](https://zenodo.org/record/7996929).**
